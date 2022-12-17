@@ -5,7 +5,12 @@ This is the Unity version of the AI4U Agent Abstraction Framework (AI4UAAF). AI4
 
 Agent abstraction defines an agent living in a environment and interacting with this environment by means of sensors and actuators. So, NPC specification is a kind of agent specification. Agent's components are: sensors, actuators, events, reward functions and brain. Sensors and actuators are the interface between agents and environments. A sensor provides data to an agent's brain, while actuators send actions from agent to environment. A brain is a script that proccessing sensors' data e made a decision (selects an action by time).
 
-We map components of the Unity architecture to agents components. So, agents components are stored as prefabs. A prefab is made component of game objects. A Game Object is a visible or not visible element of the game. Furthermore, the visible elements are statics or dynamics. Shortly, we will publish a full article on this relationship between Unity and agent abstraction. 
+We map components of the Unity architecture to agents components. So, agents components are stored as prefabs. A prefab is made component of game objects. A Game Object is a visible or not visible element of the game. Furthermore, the visible elements are statics or dynamics. Shortly, we will publish a full article on this relationship between Unity and agent abstraction.
+
+# Compatibility
+
+AI4UAAF for Unity was tested in Ubuntu 22.04, PopOS 22.04 and Windows 11. In Ubuntu and PopOS, better experience was installing Unity Hub beta and **Unity Editor 2022.2.1f1**. 
+
 
 # Setup
 
