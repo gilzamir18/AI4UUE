@@ -11,4 +11,4 @@ We map components of the Unity architecture to agents components. So, agents com
 
 AI4UAAF is a Unity package that can be installed locally. Create a new 3D project in Unity. From the Window menu, select the "Package Manager" option. In the Package Manager window, click on the "add package from disk" option. The following image shows the entire process of installing the package and opening a ready-to-train scene.
 
-![PACKAGE INSTALLER](/doc/img/package_setup.gif)
+![PACKAGE INSTALLER](/doc/img/package_setup.webm)
