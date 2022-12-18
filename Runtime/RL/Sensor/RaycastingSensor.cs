@@ -31,6 +31,8 @@ namespace ai4u
         public bool returnDepthMatrix = false;
         public int vSize = 10;
         public int hSize = 10;
+        public bool automaticTagMapping = true;
+        public int tagCodeDistance = 10;
 
         private Dictionary<string, int> mapping;
         private Ray[,] raysMatrix = null;
@@ -43,10 +45,22 @@ namespace ai4u
             shape = new int[2]{hSize,  vSize};
             stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
             agent.AddResetListener(this);
+            
             mapping = new Dictionary<string, int>();
-            foreach(ObjectMapping obj in objectMapping)
+            if (automaticTagMapping)
             {
-                mapping[obj.tag] = obj.code;
+                for (int i = 0; i < UnityEditorInternal.InternalEditorUtility.tags.Length; i++)
+                {
+                        string tag = UnityEditorInternal.InternalEditorUtility.tags[i];
+                        mapping[tag] = i * tagCodeDistance;
+                }
+            }
+            else
+            {
+                foreach(ObjectMapping obj in objectMapping)
+                {
+                    mapping[obj.tag] = obj.code;
+                }
             }
             raysMatrix = new Ray[shape[0], shape[1]];
         }
