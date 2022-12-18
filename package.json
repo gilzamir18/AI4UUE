@@ -5,22 +5,21 @@
   "unity": "2021.3",
   "description": "Use state-of-the-art machine learning to create intelligent character behaviors in any Unity environment (games, robotics, film, etc.).",
   "dependencies": {},
-  "samples":
-  [
+  "samples": [
     {
-      "displayName":"AI4UAssets",
-      "description":"AI4U Common Assets",
-      "path":"Samples~/AI4UAssets"
+      "displayName": "AI4UAssets",
+      "description": "Assets used in AI4U examples.",
+      "path": "Samples/AI4UAssets"
     },
     {
       "displayName": "Donut",
-      "description": "AI4U Example Application",
-      "path": "Samples~/Donut"
+      "description": "AI4U Demo with scenes used in AI4U examples of python scripts.",
+      "path": "Samples/Donut"
     }
   ],
   "author": {
-    "name":"Gilzamir Gomes",
-    "email": "gilzamir_gomes@uvanet.br",
-    "url":"http://github.com/gilcoder"
+    "name": "Gilzamir Gomes",
+    "email": "gilzamir@outlook.com",
+    "url": "https://www.github.com/gilcoder/ai4uue"
   }
 }

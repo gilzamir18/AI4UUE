@@ -9,7 +9,7 @@ We map components of the Unity architecture to agents components. So, agents com
 
 # Compatibility
 
-AI4UAAF for Unity was tested in Ubuntu 22.04, PopOS 22.04 and Windows 11. In Ubuntu and PopOS, better experience was installing Unity Hub beta and **Unity Editor 2022.2.1f1**. 
+AI4UAAF for Unity was tested in Ubuntu 22.04, PopOS 22.04 and Windows 11. In Ubuntu and PopOS, better experience was installing Unity Hub beta and **Unity Editor 2022.2.1f1**. The best scenario is to use Unity and AI4U in Windows environment (10 or 11).
 
 
 # Setup
