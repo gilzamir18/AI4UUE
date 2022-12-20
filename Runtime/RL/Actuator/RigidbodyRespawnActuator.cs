@@ -48,13 +48,13 @@ namespace ai4u
                 {
                     int idx = (int)Random.Range(0, respawnMarker.childCount - 1 + 0.5f );
                     Transform c = respawnMarker.GetChild(idx);
-                    transform.localPosition = c.localPosition;
-                    transform.localRotation = c.localRotation;                    
+                    transform.position = c.position;
+                    transform.rotation = c.rotation;                    
                 }
                 else
                 {
-                    transform.localPosition =  respawnMarker.localPosition;
-                    transform.localRotation = respawnMarker.localRotation;
+                    transform.position =  respawnMarker.position;
+                    transform.rotation = respawnMarker.rotation;
                 }
             } else {
                 if (!ignoreStartPoint)

@@ -135,10 +135,15 @@ namespace ai4u
             }
             return false;
         }
-        
 
         void FixedUpdate()
         {
+            if (!initialized)
+            {
+                throw new System.Exception("ControlRequestor could not be initialized." + 
+                                                    " Check if you have added any brains (RemoteBrain or LocalBrain)"+
+                                                    " for the agent.");
+            }
             foreach(var entry in agents)
             {
                 AgentUpdate(entry.Value);
