@@ -7,6 +7,13 @@ Agent abstraction defines an agent living in a environment and interacting with 
 
 We map components of the Unity architecture to agents components. So, agents components are stored as prefabs. A prefab is made component of game objects. A Game Object is a visible or not visible element of the game. Furthermore, the visible elements are statics or dynamics. Shortly, we will publish a full article on this relationship between Unity and agent abstraction.
 
+# AI4UUE and MLAgents
+IA4UUE is not the same as MLAgents. For sure AI4UUE has less features than MLAgents. But our idea is to provide a more flexible and modular way of developing and reusing code. AI4UUE doesn't promise to be any easier to configure than MLAgents, but it is easier to extend by creating reusable sensors, actuators and reward functions.
+
+Another difference of AI4UUE from MLagents is that we facilitate the use of third-party training algorithms. AI4UUE's integration with environments that use the OpenAI Gym protocol is built in by default into the programming interface, allowing the programmer to choose any AI Python framework that is already working with environments that follow the Gym standard. We use stable-baselines3 in the AI4U sample scripts to demonstrate the use of the stable-baselines3 framework, but any other machine learning API could be used. In addition, the programmer can easily integrate his own machine learning solution into AI4UUE.
+
+We are still working on getting high-performance and more sophisticated demos of our framework. Soon we will also add support for using neural networks completely within Unity, without relying on Python scripts, as is currently the case with MLAgents.
+
 # Compatibility
 
 AI4UAAF for Unity was tested in Ubuntu 22.04, PopOS 22.04 and Windows 11. In Ubuntu and PopOS, better experience was installing Unity Hub beta and **Unity Editor 2022.2.1f1**. The best scenario is to use Unity and AI4U in Windows environment (10 or 11).
