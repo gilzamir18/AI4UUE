@@ -7,6 +7,10 @@ namespace ai4u
         
         public void Awake()
         {
+            if (!isEnabled)
+            {
+                return;
+            }
             if (agent == null)
             {
                 agent = GetComponent<Agent>();

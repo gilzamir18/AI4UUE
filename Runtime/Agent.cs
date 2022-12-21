@@ -333,6 +333,7 @@ namespace ai4u
         protected string[] receivedargs;
         
         private Dictionary<string, string[]> commandFields;
+        public bool isEnabled = true;
         public Agent agent = null;
         public int skipFrame = 0;
         public bool repeatAction = false;

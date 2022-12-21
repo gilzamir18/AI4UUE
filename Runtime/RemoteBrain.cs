@@ -40,6 +40,10 @@ namespace ai4u
         private ControlRequestor controlRequestor;
 
         void Awake(){
+            if (!isEnabled)
+            {
+                return;
+            }
             //one time configuration
             sockToSend = TrySocket();
             if (!managed && runFirstTime){
