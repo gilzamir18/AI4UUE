@@ -141,8 +141,8 @@ namespace ai4u
             if (!initialized)
             {
                 throw new System.Exception("ControlRequestor could not be initialized." + 
-                                                    " Check if you have added any brains (RemoteBrain or LocalBrain)"+
-                                                    " for the agent.");
+                                                    " Added any brain (RemoteBrain or LocalBrain)"+
+                                                    " for the agent and set this ControlRequestor to the agent!");
             }
             foreach(var entry in agents)
             {
