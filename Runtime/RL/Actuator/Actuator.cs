@@ -9,6 +9,7 @@ namespace ai4u
 
         public string actionName;
         public BasicAgent agent;
+        public bool isOutput = true;
         private bool actionDone = false;
         protected int[] shape;
         protected bool isContinuous;

@@ -45,6 +45,7 @@ namespace ai4u
         private List<Sensor> sensorList;
         private int numberOfSensors = 0;
         private int numberOfActuators = 0;
+        private ModelMetadataLoader metadataLoader;
 
         public bool Done
         {
@@ -99,21 +100,25 @@ namespace ai4u
             }
 
             DoneSensor doneSensor = GetComponent<DoneSensor>();
+            doneSensor.isInput = false;
             doneSensor.SetAgent(this);
             sensorList.Add(doneSensor);
             sensorsMap[doneSensor.perceptionKey] = doneSensor;
 
             RewardSensor rewardSensor = GetComponent<RewardSensor>();
+            rewardSensor.isInput = false;
             rewardSensor.SetAgent(this);
             sensorList.Add(rewardSensor);
             sensorsMap[rewardSensor.perceptionKey] = rewardSensor;
 
             IDSensor idSensor = GetComponent<IDSensor>();
+            idSensor.isInput = false;
             idSensor.SetAgent(this);
             sensorList.Add(idSensor);
             sensorsMap[idSensor.perceptionKey] = idSensor;
 
             StepSensor stepSensor = GetComponent<StepSensor>();
+            stepSensor.isInput = false;
             stepSensor.SetAgent(this);
             sensorList.Add(stepSensor);
             sensorsMap[stepSensor.perceptionKey] = stepSensor;
@@ -189,19 +194,7 @@ namespace ai4u
             types = new byte[totalNumberOfSensors];
             values = new string[totalNumberOfSensors];
             controlRequestor.SetAgent(this);
-
-            RequestCommand request = new RequestCommand(3);
-            request.SetMessage(0, "__target__", ai4u.Brain.STR, "envcontrol");
-            request.SetMessage(1, "max_steps", ai4u.Brain.INT, MaxStepsPerEpisode);
-            request.SetMessage(2, "id", ai4u.Brain.STR, ID);
-
-            var cmds = controlRequestor.RequestEnvControl(this, request);
-            if (cmds == null)
-            {
-                throw new System.Exception("ai4u2unity connection error!");
-            }
-            setupIsDone = true;
-
+        
             foreach (Sensor sensor in sensorList)
             {
                 if (sensor.resetable)
@@ -214,6 +207,40 @@ namespace ai4u
             foreach(Actuator a in actuatorList)
             {
                 a.OnSetup(this);
+            }
+
+            metadataLoader = new ModelMetadataLoader(this);
+            string metadatastr = metadataLoader.toJson();
+
+            RequestCommand request = new RequestCommand(5);
+            request.SetMessage(0, "__target__", ai4u.Brain.STR, "envcontrol");
+            request.SetMessage(1, "max_steps", ai4u.Brain.INT, MaxStepsPerEpisode);
+            request.SetMessage(2, "id", ai4u.Brain.STR, ID);
+            request.SetMessage(3, "modelmetadata", ai4u.Brain.STR, metadatastr);
+			request.SetMessage(4, "config", ai4u.Brain.INT, 1);
+
+            var cmds = controlRequestor.RequestEnvControl(this, request);
+            if (cmds == null)
+            {
+                throw new System.Exception("ai4u2unity connection error!");
+            }
+    
+            setupIsDone = true;
+        }
+
+        public List<Actuator> Actuators
+        {
+            get 
+            {
+                return actuatorList;
+            }
+        }
+
+        public List<Sensor> Sensors 
+        {
+            get
+            {
+                return sensorList;
             }
         }
 

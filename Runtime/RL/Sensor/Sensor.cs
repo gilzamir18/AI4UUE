@@ -23,7 +23,7 @@ namespace ai4u
         [Tooltip("Determines whether observation data must be transformed to stay within a certain range before being sent to the controller.")]
         public bool  normalized = true;
         public bool resetable = true;
-
+        public bool isInput = false;
         protected SensorType Type;
         protected bool IsState;
         protected int[] Shape;
