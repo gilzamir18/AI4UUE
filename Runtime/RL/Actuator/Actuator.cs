@@ -13,6 +13,24 @@ namespace ai4u
         private bool actionDone = false;
         protected int[] shape;
         protected bool isContinuous;
+		protected float[] rangeMin;
+		protected float[] rangeMax;
+
+		public float[] RangeMin
+		{
+			get 
+			{
+				return rangeMin;
+			}
+		}
+
+		public float[] RangeMax 
+		{
+			get
+			{
+				return rangeMax;
+			}
+		}
 
         public int[] Shape
         {

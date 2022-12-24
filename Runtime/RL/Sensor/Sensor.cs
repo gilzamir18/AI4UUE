@@ -24,6 +24,8 @@ namespace ai4u
         public bool  normalized = true;
         public bool resetable = true;
         public bool isInput = false;
+        public float rangeMin = 0.0f;
+        public float rangeMax = 1.0f;
         protected SensorType Type;
         protected bool IsState;
         protected int[] Shape;

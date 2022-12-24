@@ -15,8 +15,7 @@ namespace ai4u {
 
         public MoveActuator()
         {
-            shape = new int[1]{4};
-            isContinuous = true;
+
         }
 
         private bool onGround = false;
@@ -85,6 +84,10 @@ namespace ai4u {
 
         public override void OnSetup(Agent agent)
         {
+            shape = new int[1]{4};
+            isContinuous = true;
+            rangeMin = new float[]{0, -1, 0, 0};
+			rangeMax = new float[]{1, 1, 1, 1};
             agent.AddResetListener(this);
         }
 

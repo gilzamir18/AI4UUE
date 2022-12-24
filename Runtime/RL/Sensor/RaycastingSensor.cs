@@ -34,6 +34,10 @@ namespace ai4u
         public bool automaticTagMapping = true;
         public int tagCodeDistance = 10;
 
+        public bool debugMode = false;
+
+        public bool flattened = false;
+
         private Dictionary<string, int> mapping;
         private Ray[,] raysMatrix = null;
         private Vector3 fw1 = new Vector3(), fw2 = new Vector3();
@@ -42,8 +46,17 @@ namespace ai4u
         public override void OnSetup(Agent agent)
         {
             type = SensorType.sfloatarray;
-            shape = new int[2]{hSize,  vSize};
-            stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+			if (!flattened)
+			{
+				shape = new int[2]{hSize,  vSize};
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+			}
+			else
+			{
+				shape = new int[1]{hSize * vSize};
+			    stack = new HistoryStack<float>(stackedObservations * shape[0]);
+            }
+
             agent.AddResetListener(this);
             
             mapping = new Dictionary<string, int>();
@@ -62,18 +75,25 @@ namespace ai4u
                     mapping[obj.tag] = obj.code;
                 }
             }
-            raysMatrix = new Ray[shape[0], shape[1]];
+            raysMatrix = new Ray[hSize, vSize];
         }
         
         public override void OnReset(Agent agent) 
         {
-            stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+            if (!flattened)
+            {
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+            }
+            else
+            {
+                stack = new HistoryStack<float>(stackedObservations * shape[0]);
+            }
             mapping = new Dictionary<string, int>();
             foreach(ObjectMapping obj in objectMapping)
             {
                 mapping[obj.tag] = obj.code;
             }
-            raysMatrix = new Ray[shape[0], shape[1]];
+            raysMatrix = new Ray[hSize, vSize];
             GetFloatArrayValue();
         }
 
@@ -87,7 +107,7 @@ namespace ai4u
         {
             type = SensorType.sfloatarray;
             shape = new int[2]{hSize,  vSize};
-            stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+            stack = new HistoryStack<float>(stackedObservations * hSize * vSize);
             mapping = new Dictionary<string, int>();
             foreach(ObjectMapping obj in objectMapping)
             {
@@ -101,19 +121,19 @@ namespace ai4u
         {
             int s0 = 1;
             int s1 = 1;
-            if (shape[0] > 1)
+            if (hSize > 1)
             {
-                s0 = shape[0] - 1;
+                s0 = hSize - 1;
             }
-            if (shape[1] > 1)
+            if (vSize > 1)
             {
-                s1 = shape[1] - 1;
+                s1 = vSize - 1;
             }
 
             float vangle = fieldOfView / s1;
             float hangle = fieldOfView / s0;
 
-            if (shape[0] > 1 && shape[1] == 1)
+            if (hSize > 1 && vSize == 1)
             {
                 float ihangle = -fieldOfView/2;
                 fw2.Set(forward.x, forward.y, forward.z);
@@ -124,7 +144,7 @@ namespace ai4u
                     UpdateViewMatrix(j, 0);
                 }
             }
-            if (shape[0] == 1 && shape[1] > 1)
+            if (hSize == 1 && vSize > 1)
             {
                 float ivangle = -fieldOfView/2;
                 for (int i = 0; i < shape[1]; i++)
@@ -136,17 +156,17 @@ namespace ai4u
                     raysMatrix[0, i].direction = fw2.normalized;
                     UpdateViewMatrix(0, i);
                 }
-            } if (shape[0] > 1 && shape[1] > 1)
+            } if (hSize > 1 && vSize > 1)
             {
                 float ivangle = -fieldOfView/2;
 
-                for (int i = 0; i < shape[1]; i++)
+                for (int i = 0; i < vSize; i++)
                 {
                     float ihangle = -fieldOfView/2;
                     fw1 = (Quaternion.AngleAxis(ivangle + vangle * i, right) * forward).normalized;
                     fw2.Set(fw1.x, fw1.y, fw1.z);
 
-                    for (int j = 0; j < shape[0]; j++)
+                    for (int j = 0; j < hSize; j++)
                     {
                         raysMatrix[j, i].origin = position;
                         raysMatrix[j, i].direction = Quaternion.AngleAxis(-verticalShift, right) * Quaternion.AngleAxis(-horizontalShift, up) * (Quaternion.AngleAxis(ihangle + hangle * j, up) * fw2).normalized;
@@ -156,7 +176,6 @@ namespace ai4u
             }
         }
 
-        public bool debugMode = false;
         public void UpdateViewMatrix(int i, int j)
         {                
             RaycastHit hitinfo;
