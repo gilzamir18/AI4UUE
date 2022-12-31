@@ -8,11 +8,23 @@ namespace ai4u
         private string[] desc;
         private byte[] type;
         private string[] value;
-
+		protected Agent agent;
 
         public Controller(): base()
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+        }
+
+		public void Setup(Agent agent)
+		{
+			this.agent = agent;
+            OnSetup();
+        }
+        
+
+        public virtual void OnSetup()
+        {
+
         }
 
 

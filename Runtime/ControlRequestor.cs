@@ -20,6 +20,7 @@ namespace ai4u
     public class ControlRequestor : MonoBehaviour
     {
         public float defaultTimeScale = 1.0f; 
+        public bool physicsMode = true;
 
         private SortedList<string, Agent> agents;
 
@@ -136,7 +137,24 @@ namespace ai4u
             return false;
         }
 
+
         void FixedUpdate()
+        {
+            if (physicsMode)
+            {
+                AI4UUpdate();
+            }
+        }
+
+        void Update()
+        {
+            if (!physicsMode)
+            {
+                AI4UUpdate();
+            }
+        }
+
+        void AI4UUpdate()
         {
             if (!initialized)
             {

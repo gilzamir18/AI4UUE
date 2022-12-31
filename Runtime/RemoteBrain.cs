@@ -18,6 +18,14 @@ namespace ai4u
         ///line arguments do not alter the properties of 
         ///the remote brain.</summary>
         public bool managed = false;
+        ///<summary>The IP of the ai4u2unity training server.</summary>
+        public string host = "127.0.0.1";
+        ///<summary>The server port of the ai4u2unity training server.</summary>
+        public int port = 8080;
+        public int receiveTimeout = 10;
+        public int receiveBufferSize = 8192;
+        public int sendBufferSize = 8192;
+
 
         private string cmdname; //It's more recently received command/action name.
         private string[] args; //It's more recently command/action arguments.
@@ -25,13 +33,6 @@ namespace ai4u
         private bool runFirstTime = false;
 
 
-        ///<summary>The IP of the ai4u2unity training server.</summary>
-        public string host = "127.0.0.1";
-        
-        ///<summary>The server port of the ai4u2unity training server.</summary>
-        public int port = 8080;
-
-        public int receiveTimeout = 10;
 
         private IPAddress serverAddr; //controller address
         private EndPoint endPoint; //controller endpoint
@@ -122,10 +123,12 @@ namespace ai4u
             }
         }
 
-
         public bool sendData(byte[] data, out int total, byte[] received)
         {
             TrySocket().ReceiveTimeout = receiveTimeout;
+            TrySocket().ReceiveBufferSize = receiveBufferSize;
+            TrySocket().SendBufferSize = sendBufferSize;
+
             sockToSend.SendTo(data, endPoint);
             total = 0;
             try 

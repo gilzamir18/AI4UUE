@@ -25,6 +25,7 @@ namespace ai4u
 
             agent.SetBrain(this);
             agent.Setup();
+            controller.Setup(agent);
         }
 
         public string SendMessage(string[] desc, byte[] tipo, string[] valor)
