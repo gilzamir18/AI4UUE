@@ -3,34 +3,39 @@ using System.Linq;
 using ai4u;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
+using UnityEngine.Networking;
+using System.Collections;
 
 namespace ai4u
 {
     public class ScreenSensor : Sensor
     {
-            
-
+        public int width = 50;
+        public int height = 50;
         public bool grayScale = true;
-        public Camera source;
-
+        private byte[] lastFrame;
+        private Texture2D destinationTexture;
         private Queue<byte[]> values;
-
-        private int width;
-        private int height;
-
-
         void CreateData()
         {
             values = new Queue<byte[]>(stackedObservations);
-            var img = GetASCIIFrame();
+            var img = lastFrame;
             for (int i = 0; i < stackedObservations; i++)
                     values.Enqueue(img);
         }
 
         public override void OnSetup(Agent agent) 
         {
-            width = source.targetTexture.width;
-            height = source.targetTexture.height;
+            if (grayScale)
+            {
+                lastFrame = new byte[width * height];
+            }
+            else
+            {
+                lastFrame = new byte[width * height * 3];
+            }
+            StartCoroutine(UpdateMyFrame());
             type = SensorType.sstring;
             shape = new int[2]{width,  height};
             rangeMin = 0;
@@ -42,7 +47,7 @@ namespace ai4u
 
         public override string GetStringValue()
         {
-            values.Enqueue(GetASCIIFrame());        
+            values.Enqueue(lastFrame);        
             if (values.Count > stackedObservations)
             {
                 values.Dequeue();
@@ -54,54 +59,78 @@ namespace ai4u
             }
             return System.Convert.ToBase64String(sb);
         }
+        
+        void Update()
+        {
+            StartCoroutine(UpdateMyFrame());
+        }
 
         public override void OnReset(Agent agent)
         {
-            CreateData();
-        }
-
-        private byte[] GetASCIIFrame()
-        {
-            RenderTexture activeRenderTexture = RenderTexture.active;
-            RenderTexture.active = source.targetTexture;
-
-            source.Render();
-
-            Texture2D image = new Texture2D(source.targetTexture.width, source.targetTexture.height, TextureFormat.RGBA32, false);
-            image.ReadPixels(new Rect(0, 0, source.targetTexture.width, source.targetTexture.height), 0, 0);
-            image.Apply();
-
-            RenderTexture.active = activeRenderTexture;
-            //image.Reinitialize(width, height, image.format, false);
-            byte[] bytes = image.GetRawTextureData();
-            Destroy(image);
             if (grayScale)
             {
-                int CHANNELS = 4;
-                byte[] gbytes = new byte[bytes.Length/CHANNELS];
-                int k = 0;
-                for (int i = 0; i < bytes.Length; i += CHANNELS)
-                {
-                    gbytes[k] = (byte)((bytes[i] + bytes[i+1] + bytes[i+2])/3.0);
-                    k++;
-                }
-                return gbytes;
+                lastFrame = new byte[width * height];
             }
             else
             {
-                int CHANNELS = 4;
-                byte[] gbytes = new byte[source.targetTexture.width * source.targetTexture.height * (CHANNELS-1)];
-                int k = 0;
-                for (int i = 0; i < bytes.Length; i += CHANNELS)
-                {
-                    gbytes[k] = bytes[i];
-                    gbytes[k+1] = bytes[i+1];
-                    gbytes[k+2] = bytes[i+2];                    
-                    k += 3;
-                }
-
-                return gbytes;
+                lastFrame = new byte[width * height * 3];
             }
+            CreateData();
         }
+
+        IEnumerator UpdateMyFrame()
+        {
+            yield return new WaitForEndOfFrame();
+            // Create a texture the size of the screen, RGB24 format
+            int width = Screen.width;
+            int height = Screen.height;
+            destinationTexture = new Texture2D(width, height,  TextureFormat.RGBA32, false);
+            // Read screen contents into the texture
+            destinationTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            destinationTexture.Apply();
+            // Encode texture into PNG
+            if (grayScale)
+            {
+                lastFrame = GrayScaleTexture(destinationTexture, this.width, this.height);
+            }
+            else
+            {
+                lastFrame = ScaleTexture(destinationTexture, this.width, this.height);
+            }
+            Destroy(destinationTexture);
+        }
+
+        private byte[] ScaleTexture(Texture2D source, int targetWidth, int targetHeight, int ch = 3) {
+            float incX=(1.0f / (float)targetWidth);
+            float incY=(1.0f / (float)targetHeight);
+            byte[] bytes = new byte[targetWidth * targetHeight * ch];
+            int k = 0;
+            for (int i = 0; i < targetHeight; ++i) {
+                for (int j = 0; j < targetWidth; ++j) {
+                    Color newColor = source.GetPixelBilinear((float)j / (float)targetWidth, (float)i / (float)targetHeight);
+                    bytes[k] = (byte)(255 * newColor.r);
+                    bytes[k+1] = (byte)(255 * newColor.g);
+                    bytes[k+2] = (byte)(255 * newColor.b);
+                    k += ch;
+                }
+            }
+            return bytes;
+        }
+    
+
+        private byte[] GrayScaleTexture(Texture2D source, int targetWidth,int targetHeight) {
+            float incX=(1.0f / (float)targetWidth);
+            float incY=(1.0f / (float)targetHeight);
+            byte[] bytes = new byte[targetWidth * targetHeight];
+            int k = 0;
+            for (int i = 0; i < targetHeight; ++i) {
+                for (int j = 0; j < targetWidth; ++j) {
+                    Color newColor = source.GetPixelBilinear((float)j / (float)targetWidth, (float)i / (float)targetHeight);
+                    bytes[k++] = (byte)(255 * newColor.grayscale); 
+                }
+            }
+            return bytes;
+        }
+
     }
 }

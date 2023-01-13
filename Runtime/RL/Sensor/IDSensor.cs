@@ -11,6 +11,7 @@ namespace ai4u
             perceptionKey = "id";
             type = SensorType.sstring;
             shape = new int[1]{1};
+            this.agent = (BasicAgent) agent;
         }
 
         public override string GetStringValue()
