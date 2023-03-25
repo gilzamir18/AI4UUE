@@ -278,7 +278,7 @@ namespace ai4u
 
                 if (cmds == null)
                 {
-                    throw new System.Exception("ai4u2unity connection error!");
+                    throw new System.Exception($"ai4u2unity connection error! Agent ID: {agent.ID}.");
                 }
 
                 if (CheckCmd(cmds, "__restart__"))

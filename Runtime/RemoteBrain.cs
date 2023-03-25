@@ -138,7 +138,7 @@ namespace ai4u
             }
             catch(System.Exception e)
             {
-                Debug.LogWarning("Script ai4u2unity is not connected! Start the ai4u2unity script! Network error: " + e.Message);
+                Debug.LogWarning($"Script ai4u2unity is not connected in agent {agent.ID}! Start the ai4u2unity script! Network error: {e.Message}");
                 #if UNITY_EDITOR
                     EditorApplication.isPlaying = false;
                 #endif

@@ -42,19 +42,25 @@ namespace ai4u
         private Ray[,] raysMatrix = null;
         private Vector3 fw1 = new Vector3(), fw2 = new Vector3();
         private HistoryStack<float> stack;
+        private int depth = 1;
 
         public override void OnSetup(Agent agent)
         {
             type = SensorType.sfloatarray;
-			if (!flattened)
+            depth = 1;
+            if (returnDepthMatrix)
+            {
+                depth = 2;
+            }
+            if (!flattened)
 			{
 				shape = new int[2]{hSize,  vSize};
-                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1] * depth);
 			}
 			else
 			{
 				shape = new int[1]{hSize * vSize};
-			    stack = new HistoryStack<float>(stackedObservations * shape[0]);
+			    stack = new HistoryStack<float>(stackedObservations * shape[0] * depth);
             }
 
             agent.AddResetListener(this);
@@ -82,11 +88,11 @@ namespace ai4u
         {
             if (!flattened)
             {
-                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1] * depth);
             }
             else
             {
-                stack = new HistoryStack<float>(stackedObservations * shape[0]);
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * depth);
             }
             mapping = new Dictionary<string, int>();
             foreach(ObjectMapping obj in objectMapping)
@@ -105,15 +111,18 @@ namespace ai4u
         
         void OnDrawGizmos()
         {
-            type = SensorType.sfloatarray;
-            shape = new int[2]{hSize,  vSize};
-            stack = new HistoryStack<float>(stackedObservations * hSize * vSize);
-            mapping = new Dictionary<string, int>();
-            foreach(ObjectMapping obj in objectMapping)
+            if (shape == null || stack == null)
             {
-                mapping[obj.tag] = obj.code;
+                type = SensorType.sfloatarray;
+                shape = new int[2]{hSize,  vSize};
+                stack = new HistoryStack<float>(stackedObservations * hSize * vSize * depth);
+                mapping = new Dictionary<string, int>();
+                foreach(ObjectMapping obj in objectMapping)
+                {
+                    mapping[obj.tag] = obj.code;
+                }
+                raysMatrix = new Ray[shape[0], shape[1]];
             }
-            raysMatrix = new Ray[shape[0], shape[1]];
             UpdateRaysMatrix(eye.transform.position, eye.transform.forward, eye.transform.up, eye.transform.right);
         }
 
@@ -183,7 +192,6 @@ namespace ai4u
             {
                 if (debugMode)
                 {
-
                     Debug.DrawRay(raysMatrix[i,j].origin, raysMatrix[i,j].direction * hitinfo.distance, Color.red);
                 }
 
@@ -192,24 +200,18 @@ namespace ai4u
                 string objtag = gobj.tag;
                 if (mapping.ContainsKey(objtag)){
                     int code = mapping[objtag];
-                    if (!returnDepthMatrix)
-                    {
-                        stack.Push(code);
-                    }
-                    else
+                    stack.Push(code);
+                    if (returnDepthMatrix)
                     {
                         stack.Push(hitinfo.distance);
                     }
                 } 
                 else 
                 {
-                    if (!returnDepthMatrix)
+                    stack.Push(noObjectCode);
+                    if (returnDepthMatrix)
                     {
-                        stack.Push(noObjectCode);
-                    }
-                    else
-                    {
-                        stack.Push(-1);
+                        stack.Push(-1);   
                     }
                 }
             }
@@ -219,13 +221,10 @@ namespace ai4u
                 {
                     Debug.DrawRay(raysMatrix[i,j].origin, raysMatrix[i,j].direction * visionMaxDistance, Color.yellow);
                 }
-                if (!returnDepthMatrix)
+                stack.Push(noObjectCode);
+                if (returnDepthMatrix)
                 {
-                    stack.Push(noObjectCode);
-                }
-                else
-                {
-                    stack.Push(-1);
+                    stack.Push(-1);   
                 }
             }
         }

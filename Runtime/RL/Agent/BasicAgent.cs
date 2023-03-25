@@ -222,7 +222,7 @@ namespace ai4u
             var cmds = controlRequestor.RequestEnvControl(this, request);
             if (cmds == null)
             {
-                throw new System.Exception("ai4u2unity connection error!");
+                throw new System.Exception("ai4u2unity connection error on agent id: " + ID);
             }
     
             setupIsDone = true;
