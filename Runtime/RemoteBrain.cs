@@ -22,7 +22,7 @@ namespace ai4u
         public string host = "127.0.0.1";
         ///<summary>The server port of the ai4u2unity training server.</summary>
         public int port = 8080;
-        public int receiveTimeout = 10;
+        public int receiveTimeout = 2000;
         public int receiveBufferSize = 8192;
         public int sendBufferSize = 8192;
 
