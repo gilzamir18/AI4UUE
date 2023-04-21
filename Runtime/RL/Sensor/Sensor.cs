@@ -21,17 +21,43 @@ namespace ai4u
         [Tooltip("If active, the sensor is processed and sent to the controller, otherwise it is as if it does not exist.")]
         public bool isActive = true;
         [Tooltip("Determines whether observation data must be transformed to stay within a certain range before being sent to the controller.")]
-        public bool  normalized = true;
+        
         public bool resetable = true;
         public bool isInput = false;
-        public float rangeMin = 0.0f;
-        public float rangeMax = 1.0f;
         protected SensorType Type;
         protected bool IsState;
         protected int[] Shape;
         [Tooltip("The maximum number of observations to be appended to this sensor.")]
         protected BasicAgent agent;
-        
+        protected bool  normalized = true;
+        protected float rangeMin = 0.0f;
+        protected float rangeMax = 1.0f;
+
+
+        public bool Normalized
+        {
+            get
+            {
+                return normalized;
+            }
+        }
+
+
+        public float RangeMin 
+        {
+            get
+            {
+                return rangeMin;
+            }
+        }
+
+        public float RangeMax 
+        {
+            get
+            {
+                return rangeMax;
+            }
+        }
 
         public SensorType type
         {

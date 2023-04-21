@@ -66,13 +66,17 @@ namespace ai4u
             agent.AddResetListener(this);
             
             mapping = new Dictionary<string, int>();
+            
+
             if (automaticTagMapping)
             {
+                #if UNITY_EDITOR
                 for (int i = 0; i < UnityEditorInternal.InternalEditorUtility.tags.Length; i++)
                 {
                         string tag = UnityEditorInternal.InternalEditorUtility.tags[i];
                         mapping[tag] = i * tagCodeDistance;
                 }
+                #endif
             }
             else
             {
