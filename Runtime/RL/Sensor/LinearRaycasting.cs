@@ -6,17 +6,29 @@ namespace ai4u
 {
     public class LinearRaycasting : Sensor
     {
+        [Tooltip("'noObjectCode' is the code produced when a ray does not hit any object.")]
         public int noObjectCode;
+        [Tooltip("The 'eye' property refers to the position and forward direction of the casting rays.")]
         public GameObject eye;
+        [Tooltip("The 'fieldOfView' property represents the angle between the two extreme rays that are cast from the position specified by the 'eye' property. This angle determines the extent of the field of view for the associated camera or sensor, and indicates the angular range within which objects can be detected or observed.")]
         public float fieldOfView = 180.0f;
+        [Tooltip("A float value that determines the vertical shift of the casting rays.")]
         public float verticalShift = 0;
+        [Tooltip("A float value that determines the horizontal shift of the casting rays.")]
         public float horizontalShift = 0;
+        [Tooltip("A float value that determines the maximum distance that the casting rays can travel before being stopped.")]
         public float maxDistance = 500f;
+        [Tooltip("A boolean value that indicates whether or not the sensor should return depth information.")]
         public bool returnDepthMatrix = false;
+        [Tooltip("An integer value that determines how many rays will be cast from the sensor.")]
         public int numberOfRays = 5;
+        [Tooltip("A boolean value that indicates whether or not the sensor should automatically map detected objects to integer codes based on their tags.")]
         public bool automaticTagMapping = false;
+        [Tooltip("An integer value that is used to calculate the integer code for objects detected by the sensor when automaticTagMapping is enabled.")]
         public int tagCodeDistance = 10;
+        [Tooltip("An array of ObjectMapping structs that define mappings between object tags and integer codes.")]
         public  ObjectMapping[] objectMapping;
+        [Tooltip(" A boolean value that indicates whether or not debug information should be displayed while the sensor is active.")]
         public bool debugMode = false;
 
         private HistoryStack<float> stack;

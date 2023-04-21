@@ -16,18 +16,19 @@ namespace ai4u
 
     public class Sensor : MonoBehaviour, IAgentResetListener
     {
+        [Tooltip("'perceptionKey' represents a unique key for an identifiable sensor component, which will be used by the controller to retrieve information from the sensor.")]
         public string perceptionKey;
+        [Tooltip("The 'stackedObservation' property represents a collection of observations that have been stacked together in a specific format, where it allows multiple observations to be processed and analyzed as a single input.")]
         public int stackedObservations = 1;
         [Tooltip("If active, the sensor is processed and sent to the controller, otherwise it is as if it does not exist.")]
         public bool isActive = true;
-        [Tooltip("Determines whether observation data must be transformed to stay within a certain range before being sent to the controller.")]
-        
+        [Tooltip("The 'resetable' property indicates whether the associated component should be reset at the beginning of each episode, whenever the associated agent is reset.")]
         public bool resetable = true;
+        [Tooltip(" The 'isInput' property is a boolean flag that indicates whether the associated component is an agent's input or not.")]
         public bool isInput = false;
         protected SensorType Type;
         protected bool IsState;
         protected int[] Shape;
-        [Tooltip("The maximum number of observations to be appended to this sensor.")]
         protected BasicAgent agent;
         protected bool  normalized = true;
         protected float rangeMin = 0.0f;
