@@ -105,8 +105,8 @@ namespace ai4u
                 {
                     mapping[obj.tag] = obj.code;
                 }
-                RayCasting();
             }
+            RayCasting();
         }
 
 
@@ -135,7 +135,7 @@ namespace ai4u
                     angle = i * angleStep - halfFOV;
                 }
                 
-                Vector3 direction = Quaternion.Euler(0, angle + horizontalShift, verticalShift) * fwd;
+                Vector3 direction = Quaternion.Euler(verticalShift, angle + horizontalShift, 0) * fwd;
                 RaycastHit hitinfo;
                 if (Physics.Raycast(pos, direction, out hitinfo, maxDistance))
                 {
@@ -155,7 +155,7 @@ namespace ai4u
                         stack.Push(noObjectCode);
                         if (returnDepthMatrix)
                         {
-                            stack.Push(-1);
+                            stack.Push(hitinfo.distance);
                         }
                     }
                     if (debugMode)
