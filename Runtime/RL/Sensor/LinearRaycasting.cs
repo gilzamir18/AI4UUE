@@ -44,9 +44,10 @@ namespace ai4u
             mapping = new Dictionary<string, int>();
             if (returnDepthMatrix)
             {
-                shape = new int[1]{numberOfRays * depth};
+                depth = 2;
             }
-            
+
+            shape = new int[1]{numberOfRays * depth};            
             stack = new HistoryStack<float>(stackedObservations * shape[0]);
 
             if (automaticTagMapping)
