@@ -42,30 +42,18 @@ namespace ai4u
         private Ray[,] raysMatrix = null;
         private Vector3 fw1 = new Vector3(), fw2 = new Vector3();
         private HistoryStack<float> stack;
-        private int depth = 1;
-
+    
         public override void OnSetup(Agent agent)
         {
             type = SensorType.sfloatarray;
-            depth = 1;
-            if (returnDepthMatrix)
-            {
-                depth = 2;
-            }
             if (!flattened)
 			{
-                if (depth == 1)
-                {
-				    shape = new int[2]{hSize,  vSize};
-                }
-                else
-                {
-                    shape = new int[3]{depth, hSize, vSize};
-                }
+
+				shape = new int[2]{hSize,  vSize};
 			}
 			else
 			{
-				shape = new int[1]{depth * hSize * vSize};
+				shape = new int[1]{hSize * vSize};
             }
             CreateBuffer();
             agent.AddResetListener(this);
@@ -97,11 +85,11 @@ namespace ai4u
         {
             if (!flattened)
             {
-                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1] * depth);
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
             }
             else
             {
-                stack = new HistoryStack<float>(stackedObservations * shape[0] * depth);
+                stack = new HistoryStack<float>(stackedObservations * shape[0]);
             }
             mapping = new Dictionary<string, int>();
             foreach(ObjectMapping obj in objectMapping)
@@ -124,7 +112,7 @@ namespace ai4u
             {
                 type = SensorType.sfloatarray;
                 shape = new int[2]{hSize,  vSize};
-                stack = new HistoryStack<float>(stackedObservations * hSize * vSize * depth);
+                stack = new HistoryStack<float>(stackedObservations * hSize * vSize);
                 mapping = new Dictionary<string, int>();
                 foreach(ObjectMapping obj in objectMapping)
                 {
@@ -144,14 +132,7 @@ namespace ai4u
             }
             else
             {
-                if (depth == 1)
-                {
-                    stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
-                }
-                else
-                {
-                    stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1] * shape[2]);
-                }
+                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
             }
         }
 
@@ -229,18 +210,24 @@ namespace ai4u
                 string objtag = gobj.tag;
                 if (mapping.ContainsKey(objtag)){
                     int code = mapping[objtag];
-                    stack.Push(code);
                     if (returnDepthMatrix)
                     {
                         stack.Push(hitinfo.distance);
                     }
+                    else
+                    {
+                        stack.Push(code);
+                    }
                 } 
                 else 
                 {
-                    stack.Push(noObjectCode);
                     if (returnDepthMatrix)
                     {
                         stack.Push(-1);   
+                    }
+                    else
+                    {
+                        stack.Push(noObjectCode);
                     }
                 }
             }
@@ -250,10 +237,13 @@ namespace ai4u
                 {
                     Debug.DrawRay(raysMatrix[i,j].origin, raysMatrix[i,j].direction * visionMaxDistance, Color.yellow);
                 }
-                stack.Push(noObjectCode);
                 if (returnDepthMatrix)
                 {
                     stack.Push(-1);   
+                }
+                else
+                {
+                    stack.Push(noObjectCode);
                 }
             }
         }
