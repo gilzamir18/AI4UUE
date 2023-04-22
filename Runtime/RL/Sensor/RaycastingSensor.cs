@@ -54,15 +54,20 @@ namespace ai4u
             }
             if (!flattened)
 			{
-				shape = new int[2]{hSize,  vSize};
-                stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1] * depth);
+                if (depth == 1)
+                {
+				    shape = new int[2]{hSize,  vSize};
+                }
+                else
+                {
+                    shape = new int[3]{depth, hSize, vSize};
+                }
 			}
 			else
 			{
-				shape = new int[1]{hSize * vSize};
-			    stack = new HistoryStack<float>(stackedObservations * shape[0] * depth);
+				shape = new int[1]{depth * hSize * vSize};
             }
-
+            CreateBuffer();
             agent.AddResetListener(this);
             
             mapping = new Dictionary<string, int>();
@@ -128,6 +133,26 @@ namespace ai4u
                 raysMatrix = new Ray[shape[0], shape[1]];
             }
             UpdateRaysMatrix(eye.transform.position, eye.transform.forward, eye.transform.up, eye.transform.right);
+        }
+
+        private void CreateBuffer()
+        {
+
+            if (flattened)
+            {
+                stack = new HistoryStack<float>(stackedObservations * shape[0]);
+            }
+            else
+            {
+                if (depth == 1)
+                {
+                    stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1]);
+                }
+                else
+                {
+                    stack = new HistoryStack<float>(stackedObservations * shape[0] * shape[1] * shape[2]);
+                }
+            }
         }
 
         private void UpdateRaysMatrix(Vector3 position, Vector3 forward, Vector3 up, Vector3 right)

@@ -39,15 +39,15 @@ namespace ai4u
         
         public override void OnSetup(Agent agent)
         {
+            depth = 1;
             type = SensorType.sfloatarray;
-            shape = new int[1]{(int)numberOfRays};
             mapping = new Dictionary<string, int>();
             if (returnDepthMatrix)
             {
-                depth += 1;
+                shape = new int[1]{numberOfRays * depth};
             }
             
-            stack = new HistoryStack<float>(stackedObservations * shape[0] * depth);
+            stack = new HistoryStack<float>(stackedObservations * shape[0]);
 
             if (automaticTagMapping)
             {
@@ -72,8 +72,7 @@ namespace ai4u
 
         public override void OnReset(Agent agent) 
         {
-            
-            stack = new HistoryStack<float>(stackedObservations * shape[0] * depth);
+            stack = new HistoryStack<float>(stackedObservations * shape[0]);
             mapping = new Dictionary<string, int>();
             foreach(ObjectMapping obj in objectMapping)
             {
