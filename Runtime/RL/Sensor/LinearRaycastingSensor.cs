@@ -79,7 +79,7 @@ namespace ai4u
             {
                 mapping[obj.tag] = obj.code;
             }
-            GetFloatArrayValue();
+            RayCasting();
         }
 
         void OnDrawGizmos()
