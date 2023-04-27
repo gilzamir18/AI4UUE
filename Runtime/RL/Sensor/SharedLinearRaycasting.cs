@@ -30,6 +30,10 @@ namespace ai4u
         public  ObjectMapping[] objectMapping;
         [Tooltip(" A boolean value that indicates whether or not debug information should be displayed while the sensor is active.")]
         public bool debugMode = false;
+        [Tooltip("Color of the hitted debug rays.")]
+        public Color rayHitColor;
+        [Tooltip("Color of the unhitted debug rays.")]
+        public Color rayNotHitColor;
         [Tooltip("The 'stackedObservation' property represents a collection of observations that have been stacked together in a specific format, where it allows multiple observations to be processed and analyzed as a single input.")]
         public int stackedObservations = 1;
         [Tooltip("The sensor owner.")]
@@ -204,14 +208,14 @@ namespace ai4u
                     }
                     if (debugMode)
                     {
-                        Debug.DrawRay(pos, direction * hitinfo.distance, Color.red);
+                        Debug.DrawRay(pos, direction * hitinfo.distance, new Color(rayHitColor.r, rayHitColor.g, rayHitColor.b));
                     }
                 }
                 else
                 {
                     if (debugMode)
                     {
-                        Debug.DrawRay(pos, direction * hitinfo.distance, Color.yellow);
+                        Debug.DrawRay(pos, direction * hitinfo.distance, new Color(rayNotHitColor.r, rayNotHitColor.g, rayNotHitColor.b));
                     }
                     stack.Push(noObjectCode);
                     if (returnDepthMatrix)
