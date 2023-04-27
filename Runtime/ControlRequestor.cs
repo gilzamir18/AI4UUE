@@ -203,8 +203,7 @@ namespace ai4u
                         ctrl.applyingAction = false;
                         ctrl.paused = false;
                         ctrl.stopped = false;
-                        if ( ((BasicAgent) agent).Done ) 
-                            agent.Reset();
+                        agent.Reset();
                     }
                     else if (CheckCmd(cmd, "__pause__"))
                     {
@@ -295,8 +294,7 @@ namespace ai4u
                     ctrl.paused = false;
                     ctrl.stopped = false;
                     ctrl.applyingAction = false;
-                    if (( (BasicAgent)agent).Done)
-                        agent.Reset();
+                    agent.Reset();
                 } else if (ctrl.paused && CheckCmd(cmds, "__resume__"))
                 {
                     ctrl.paused = false;
