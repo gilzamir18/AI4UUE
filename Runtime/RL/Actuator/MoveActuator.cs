@@ -13,11 +13,6 @@ namespace ai4u {
         public float jumpPower = 1;
         public float jumpForwardPower = 1;
 
-        public MoveActuator()
-        {
-
-        }
-
         private bool onGround = false;
 
         public bool OnGround
