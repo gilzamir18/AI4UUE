@@ -29,10 +29,10 @@ namespace  ai4u
             acmReward = 0;
             if (target == null)
             {
-                target = gameObject;
+                Debug.Log(@"Target was not specified in TouchRewardFunc({gameObject.name}) from agent ID({agent.ID}.)");
             }
             myCollider = target.GetComponent<Collider>();
-            agent.AddResetListener(this);
+            this.agent.AddResetListener(this);
         }
 
 
@@ -81,7 +81,12 @@ namespace  ai4u
 
         public void Check(Collider collider)
         {
-            if (agent.gameObject.GetComponent<Collider>() == collider) {
+            if (agent.body.GetComponent<Collider>() == null)
+            {
+                Debug.Log("ERRO AQUI");
+            }
+
+            if (agent.body.GetComponent<Collider>() == collider) {
                 touched = true;
                 agent.touchListener(this);  
 

@@ -31,11 +31,9 @@ namespace ai4u
         public bool doneAtPositiveReward = false;
         ///<summary>The maximum number of steps per episode.</summary>
         public int MaxStepsPerEpisode = 0;
-        public bool childrenSensors = true;
-        public Sensor[] sensors;
-        public Actuator[]  actuators;
-        public List<RewardFunc> rewards;
 
+        public GameObject body;
+        
         //Agent's ridid body
         private bool done;
         protected float reward;
@@ -43,6 +41,8 @@ namespace ai4u
         private Dictionary<string, Sensor> sensorsMap;
         private List<Actuator> actuatorList;
         private List<Sensor> sensorList;
+
+        private List<RewardFunc> rewards;
         private int numberOfSensors = 0;
         private int numberOfActuators = 0;
         private ModelMetadataLoader metadataLoader;
@@ -84,6 +84,10 @@ namespace ai4u
 
         public override void Setup()
         {
+            if (body == null)
+            {
+                body = gameObject;
+            }
             if (controlRequestor == null)
             {
                 throw new System.Exception("ControlRequestor is mandatory to BasicAgent! Set a ControlRequestor component for this agent.");
@@ -94,10 +98,7 @@ namespace ai4u
             actuatorList = new List<Actuator>();
             sensorList = new List<Sensor>();
             sensorsMap = new Dictionary<string, Sensor>();
-            if (rewards == null)
-            {
-                rewards = new List<RewardFunc>();
-            }
+            rewards = new List<RewardFunc>();
 
             DoneSensor doneSensor = GetComponent<DoneSensor>();
             doneSensor.isInput = false;
@@ -127,15 +128,51 @@ namespace ai4u
             for (int i = 0; i < transform.childCount; i++) 
             {
                 GameObject obj = transform.GetChild(i).gameObject;
-                
-                if (childrenSensors)
+                Sensor s = obj.GetComponent<Sensor>();
+                if (s != null && s.isActive)
                 {
-                    Sensor s = obj.GetComponent<Sensor>();
-                    if (s != null && s.isActive)
+                    sensorList.Add(s);
+                    numberOfSensors++;
+                    sensorsMap[s.perceptionKey] = s;
+                }
+                else
+                {
+                    if (obj.name == "sensors")
                     {
-                        sensorList.Add(s);
-                        numberOfSensors++;
-                        sensorsMap[s.perceptionKey] = s;
+                        for (int j = 0; j < obj.transform.childCount; j++)
+                        {
+                            GameObject sobj = obj.transform.GetChild(j).gameObject;
+                            Sensor s2 = sobj.GetComponent<Sensor>();
+                            if (s2 != null)
+                            {
+                                sensorList.Add(s2);
+                                numberOfSensors++;
+                                sensorsMap[s2.perceptionKey] = s2;
+                            }
+                        }
+                    }
+                }
+
+                Actuator a = obj.GetComponent<Actuator>();
+                if (a != null)
+                {
+                    actuatorList.Add(a);
+                    numberOfActuators++;
+                }
+                else
+                {
+                    if (obj.name == "actuators")
+                    {
+                        for (int j = 0; j < obj.transform.childCount; j++)
+                        {
+                            GameObject aobj = obj.transform.GetChild(j).gameObject;
+                            Actuator a2 = aobj.GetComponent<Actuator>();
+                            if (a2 != null)
+                            {
+                                actuatorList.Add(a2);
+                                numberOfActuators++;
+                            }
+                        }
                     }
                 }
 
@@ -144,44 +181,25 @@ namespace ai4u
                 {
                     rewards.Add(r);
                 }
-            }
-
-            foreach(RewardFunc r in rewards)
-            {
-                if (r == null)
-                {
-                    Debug.LogWarning("You add a null reward func for agent " + ID + "! Fix it!");
-                }
                 else
                 {
-                    r.OnSetup(this);
-                }
-            }
-
-            foreach(Sensor s in sensors)
-            {
-                if (s == null)
-                {
-                    Debug.LogWarning("Sensor is null!!! Set a valid sensor in agent's sensor list!");
-                } else if (s.isActive)
-                {
-                    s.SetAgent(this);
-                    sensorList.Add(s);
-                    sensorsMap[s.perceptionKey] = s;
+                    if (obj.name == "rewards")
+                    {
+                        for (int j = 0; j < obj.transform.childCount; j++)
+                        {
+                            GameObject robj = obj.transform.GetChild(j).gameObject;
+                            RewardFunc r2 = robj.GetComponent<RewardFunc>();
+                            if (r2 != null)
+                            {
+                                rewards.Add(r2);
+                            }
+                        }
+                    }
                 }
             }
 
             if (sensorList.Count == 0) {
                 Debug.LogWarning("Agent without sensors. Add at least one sensor for this agent to be able to perceive the world! GameObject: " + gameObject.name);
-            }
-            
-            foreach(Actuator a in actuators) {
-                if (a == null)
-                {
-                    Debug.LogWarning("Actuator is null!!! Set a valid actuator in agent's actuators list!");
-                }
-                actuatorList.Add(a);
-                numberOfActuators++;
             }
 
             if (actuatorList.Count == 0) {
@@ -195,6 +213,11 @@ namespace ai4u
             values = new string[totalNumberOfSensors];
             controlRequestor.SetAgent(this);
         
+            foreach (RewardFunc r in rewards)
+            {
+                r.OnSetup(this);
+            }
+
             foreach (Sensor sensor in sensorList)
             {
                 if (sensor.resetable)

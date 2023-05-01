@@ -13,13 +13,12 @@ namespace ai4u
 
         private BasicAgent agent;
         private bool fall = false;
-        
 
-        void Start()
+        public override void OnSetup(Agent agent)
         {
             fall = false;
-            agent = GetComponent<BasicAgent>();
-            agent.AddResetListener(this);
+            this.agent = (BasicAgent) agent;
+            this.agent.AddResetListener(this);
         }
 
         // Update is called once per frame

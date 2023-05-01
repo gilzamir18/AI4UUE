@@ -13,12 +13,12 @@ namespace ai4u {
         private BasicAgent agent;
         private float minDist = -1.0f;
 
-        public void Start() {
+        public override void OnSetup(Agent agent) {
             if (target == null) {
                 Debug.LogWarning("ForwardTargetReward error: target don't specified!");
             }
-            agent = GetComponent<BasicAgent>();
-            agent.AddResetListener(this);
+            this.agent = (BasicAgent) agent;
+            this.agent.AddResetListener(this);
             minDist = -1;
         }
 
