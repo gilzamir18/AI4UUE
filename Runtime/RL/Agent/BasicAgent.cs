@@ -31,7 +31,7 @@ namespace ai4u
         public bool doneAtPositiveReward = false;
         ///<summary>The maximum number of steps per episode.</summary>
         public int MaxStepsPerEpisode = 0;
-
+        public List<RewardFunc> rewards;
         public GameObject body;
         
         //Agent's ridid body
@@ -42,7 +42,6 @@ namespace ai4u
         private List<Actuator> actuatorList;
         private List<Sensor> sensorList;
 
-        private List<RewardFunc> rewards;
         private int numberOfSensors = 0;
         private int numberOfActuators = 0;
         private ModelMetadataLoader metadataLoader;
@@ -82,6 +81,20 @@ namespace ai4u
             Done = true;
         }
 
+        public void RegisterRewardFunc(RewardFunc f)
+        {
+            if (rewards == null)
+            {
+                rewards = new List<RewardFunc>();
+            }
+            rewards.Add(f);
+        }
+
+        public bool UnregisterRewardFunc(RewardFunc f)
+        {
+            return rewards.Remove(f);
+        }
+
         public override void Setup()
         {
             if (body == null)
@@ -98,8 +111,10 @@ namespace ai4u
             actuatorList = new List<Actuator>();
             sensorList = new List<Sensor>();
             sensorsMap = new Dictionary<string, Sensor>();
-            rewards = new List<RewardFunc>();
-
+            if (rewards == null)
+            {
+                rewards = new List<RewardFunc>();
+            }
             DoneSensor doneSensor = GetComponent<DoneSensor>();
             doneSensor.isInput = false;
             doneSensor.SetAgent(this);
