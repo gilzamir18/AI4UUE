@@ -8,7 +8,8 @@ namespace ai4u
     {
         private HistoryStack<float> stack;
         // Start is called before the first frame update
-        public MoveActuator moveActuator;
+        public LayerMask groundMask;
+            public float groundCheckDistance = 1f;
 
         public override void OnSetup(Agent agent)
         {
@@ -20,7 +21,8 @@ namespace ai4u
 
         public override float[] GetFloatArrayValue()
         {
-            stack.Push(moveActuator.OnGround? 1.0f : -1.0f);
+            bool isGrounded = Physics.Raycast(agent.gameObject.transform.position, Vector3.down, groundCheckDistance, groundMask);
+            stack.Push(isGrounded? 1.0f : -1.0f);
             return stack.Values;
         }
     }
