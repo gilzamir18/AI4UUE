@@ -19,7 +19,7 @@ namespace ai4u {
         private float fx, fy, fz;
         private Vector3 f;
         // Start is called before the first frame update
-        void Start()
+        public override void OnSetup(Agent agent)
         {
             if (ignoreX) {
                 fx = 0;
@@ -42,8 +42,9 @@ namespace ai4u {
             f = new Vector3(fx, fy, fz);
             
             prevPosition = transform.localPosition;
-            agent = GetComponent<BasicAgent>();
-            agent.AddResetListener(this);
+            
+            this.agent = (BasicAgent) agent;
+            this.agent.AddResetListener(this);
             sumOfRewards = 0;
         }
 

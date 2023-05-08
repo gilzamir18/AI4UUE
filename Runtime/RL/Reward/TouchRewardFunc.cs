@@ -14,27 +14,23 @@ namespace  ai4u
         public MultTouchPrecondition multiplePreconditions = null;
         public bool triggerOnStay = true;
         public bool allowNext;
-        public GameObject target;
+        public BasicAgent agent;
 
         private int counter;
         private bool touched;
         private Collider myCollider;
         private float acmReward = 0.0f;
-        private BasicAgent agent;
+        private GameObject target;
 
         public override void OnSetup(Agent agent) {
             this.agent = (BasicAgent) agent;
             counter = 0;
             touched = false;
             acmReward = 0;
-            if (target == null)
-            {
-                target = gameObject;
-            }
+            target = gameObject;
             myCollider = target.GetComponent<Collider>();
-            agent.AddResetListener(this);
+            this.agent.AddResetListener(this);
         }
-
 
         public override void OnUpdate() 
         {
@@ -81,7 +77,7 @@ namespace  ai4u
 
         public void Check(Collider collider)
         {
-            if (agent.gameObject.GetComponent<Collider>() == collider) {
+            if (agent.body.GetComponent<Collider>() == collider) {
                 touched = true;
                 agent.touchListener(this);  
 
