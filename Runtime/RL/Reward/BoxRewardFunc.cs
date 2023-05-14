@@ -52,7 +52,7 @@ namespace ai4u
             if (triggerOnExit) {
                 agent.boxListener(this);
                 counter++;
-                agent.AddReward(rewardValue, this);
+                acmReward += rewardValue;
             }
         }
 
@@ -73,7 +73,7 @@ namespace ai4u
             if (triggerOnExit) {
                 agent.boxListener(this);
                 counter++;
-                agent.AddReward(rewardValue, this);
+                acmReward += rewardValue;
             }
         }
 
