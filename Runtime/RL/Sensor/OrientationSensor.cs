@@ -8,6 +8,7 @@ namespace ai4u {
         public GameObject target;
         public GameObject reference = null;
         public float maxDistance = 100;
+        public bool normalize;
 
         private HistoryStack<float> history;
 
@@ -18,7 +19,7 @@ namespace ai4u {
             if (reference == null) {
                 reference = agent.gameObject;
             }
-
+            normalized = normalize;
             type = SensorType.sfloatarray;
             shape = new int[1]{2};
             history = new HistoryStack<float>(shape[0]*stackedObservations);
