@@ -33,9 +33,12 @@ namespace ai4u {
                 float[] action = agent.GetActionArgAsFloatArray();
                 move = action[0];
                 turn = action[1];
+                //Debug.Log("move : " + move);
+                //Debug.Log("turn : " + turn);
                 if (action.Length >= 3)
                 {
                     brake = action[2];
+                    //Debug.Log("Break: " + brake);
                     if (action.Length >= 4)
                     {
                         jump = action[3];
