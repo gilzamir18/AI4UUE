@@ -10,6 +10,8 @@ namespace ai4u
         public Transform respawnMarker;
         public Vector3 startPoint = Vector3.zero;
         public bool ignoreStartPoint = true;
+        public float rotationMin = 0;
+        public float rotationMax = 0;
         
         public override void OnSetup(Agent agent)
         {
@@ -54,7 +56,7 @@ namespace ai4u
                 else
                 {
                     transform.position =  respawnMarker.position;
-                    transform.rotation = respawnMarker.rotation;
+                    transform.rotation = Quaternion.Euler(0, Random.Range(rotationMin, rotationMax), 0) * respawnMarker.rotation;
                 }
             } else {
                 if (!ignoreStartPoint)
