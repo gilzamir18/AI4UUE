@@ -7,11 +7,7 @@ namespace ai4u
 {
     
     /// <summary>DPRLAgent - Dimentional Physical Reinforcement Learning Agent
-    /// This class models an agent with physical rigidbody control in a tridimentional world. </summary> 
-    [RequireComponent(typeof(DoneSensor))]
-    [RequireComponent(typeof(RewardSensor))]
-    [RequireComponent(typeof(StepSensor))]
-    [RequireComponent(typeof(IDSensor))]
+    /// This class models an agent with physical rigidbody control in a tridimentional world. </summary>
     public class BasicAgent : Agent
     {
         public delegate void AgentEpisodeHandler(BasicAgent agent);
@@ -31,16 +27,18 @@ namespace ai4u
         public bool doneAtPositiveReward = false;
         ///<summary>The maximum number of steps per episode.</summary>
         public int MaxStepsPerEpisode = 0;
+        public float rewardScale = 1.0f;
         public List<RewardFunc> rewards;
         public GameObject body;
         
         //Agent's ridid body
         private bool done;
+        private bool truncated;
         protected float reward;
         private Dictionary<string, bool> firstTouch;
-        private Dictionary<string, Sensor> sensorsMap;
+        private Dictionary<string, ISensor> sensorsMap;
         private List<Actuator> actuatorList;
-        private List<Sensor> sensorList;
+        private List<ISensor> sensorList;
 
         private int numberOfSensors = 0;
         private int numberOfActuators = 0;
@@ -64,6 +62,14 @@ namespace ai4u
             }
         }
 
+        public bool Truncated
+        {
+            get
+            {
+                return truncated;
+            }
+        }
+
         public override void EndOfEpisode()
         {
             if (endOfEpisodeEvent != null)
@@ -72,7 +78,7 @@ namespace ai4u
             }
         }
 
-        public bool TryGetSensor(string key, out Sensor s)
+        public bool TryGetSensor(string key, out ISensor s)
         {
             return sensorsMap.TryGetValue(key, out s);
         }
@@ -109,35 +115,36 @@ namespace ai4u
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
             actuatorList = new List<Actuator>();
-            sensorList = new List<Sensor>();
-            sensorsMap = new Dictionary<string, Sensor>();
+            sensorList = new List<ISensor>();
+            sensorsMap = new Dictionary<string, ISensor>();
             if (rewards == null)
             {
                 rewards = new List<RewardFunc>();
             }
-            DoneSensor doneSensor = GetComponent<DoneSensor>();
-            doneSensor.isInput = false;
+            DoneSensor doneSensor = new DoneSensor();
+            doneSensor.SetIsInput(false);
             doneSensor.SetAgent(this);
             sensorList.Add(doneSensor);
-            sensorsMap[doneSensor.perceptionKey] = doneSensor;
+            sensorsMap[doneSensor.GetKey()] = doneSensor;
 
-            RewardSensor rewardSensor = GetComponent<RewardSensor>();
-            rewardSensor.isInput = false;
+            AgentRewardSensor rewardSensor = new AgentRewardSensor();
+            rewardSensor.SetRewardScale(rewardScale);
+            rewardSensor.SetIsInput(false);
             rewardSensor.SetAgent(this);
             sensorList.Add(rewardSensor);
-            sensorsMap[rewardSensor.perceptionKey] = rewardSensor;
+            sensorsMap[rewardSensor.GetKey()] = rewardSensor;
 
-            IDSensor idSensor = GetComponent<IDSensor>();
-            idSensor.isInput = false;
+            IDSensor idSensor = new IDSensor();
+            idSensor.SetIsInput(false);
             idSensor.SetAgent(this);
             sensorList.Add(idSensor);
-            sensorsMap[idSensor.perceptionKey] = idSensor;
+            sensorsMap[idSensor.GetKey()] = idSensor;
 
-            StepSensor stepSensor = GetComponent<StepSensor>();
-            stepSensor.isInput = false;
+            StepSensor stepSensor = new StepSensor();
+            stepSensor.SetIsInput(false);
             stepSensor.SetAgent(this);
             sensorList.Add(stepSensor);
-            sensorsMap[stepSensor.perceptionKey] = stepSensor;
+            sensorsMap[stepSensor.GetKey()] = stepSensor;
             numberOfSensors = 4;
 
             for (int i = 0; i < transform.childCount; i++) 
@@ -233,9 +240,9 @@ namespace ai4u
                 r.OnSetup(this);
             }
 
-            foreach (Sensor sensor in sensorList)
+            foreach (ISensor sensor in sensorList)
             {
-                if (sensor.resetable)
+                if (sensor.IsResetable())
                 {
                     AddResetListener(sensor);
                 }
@@ -274,7 +281,7 @@ namespace ai4u
             }
         }
 
-        public List<Sensor> Sensors 
+        public List<ISensor> Sensors 
         {
             get
             {
@@ -327,6 +334,7 @@ namespace ai4u
             }
 
             if (MaxStepsPerEpisode > 0 && nSteps >= MaxStepsPerEpisode) {
+                truncated = true;
                 Done = true;
             }
             int n = actuatorList.Count;
@@ -409,6 +417,7 @@ namespace ai4u
         {
             nSteps = 0;
             reward = 0;
+            truncated = false;
             Done = false;
             firstTouch = new Dictionary<string, bool>(); 
             
@@ -449,44 +458,44 @@ namespace ai4u
 
             int n = sensorList.Count;
             for (int i = 0; i < n; i++) {
-                Sensor s = sensorList[i];
-                switch(s.type)
+                ISensor s = sensorList[i];
+                switch(s.GetSensorType())
                 {
                     case SensorType.sfloatarray:
                         var fv = s.GetFloatArrayValue();
                         if (fv == null)
                         {
-                            Debug.LogWarning("Error: array of float sensor " + s.name + " returning null value!");
+                            Debug.LogWarning("Error: array of float sensor " + s.GetName() + " returning null value!");
                         }
-                        SetStateAsFloatArray(i, s.perceptionKey, fv);
+                        SetStateAsFloatArray(i, s.GetKey(), fv);
                         break;
                     case SensorType.sfloat:
                         var fv2 = s.GetFloatValue();
-                        SetStateAsFloat(i, s.perceptionKey, fv2);
+                        SetStateAsFloat(i, s.GetKey(), fv2);
                         break;
                     case SensorType.sint:
                         var fv3 = s.GetIntValue();
-                        SetStateAsInt(i, s.perceptionKey, fv3);
+                        SetStateAsInt(i, s.GetKey(), fv3);
                         break;
                     case SensorType.sstring:
                         var fv4 = s.GetStringValue();
                         if (fv4 == null)
                         {
-                            Debug.LogWarning("Error: string sensor " + s.name + " returning null value!");
+                            Debug.LogWarning("Error: string sensor " + s.GetName() + " returning null value!");
                         }
-                        SetStateAsString(i, s.perceptionKey, fv4);
+                        SetStateAsString(i, s.GetKey(), fv4);
                         break;
                     case SensorType.sbool:
                         var fv5 = s.GetBoolValue();
-                        SetStateAsBool(i, s.perceptionKey, fv5);
+                        SetStateAsBool(i, s.GetKey(), fv5);
                         break;
                     case SensorType.sbytearray:
                         var fv6 = s.GetByteArrayValue();
                         if (fv6 == null)
                         {
-                            Debug.LogWarning("Error: byte array sensor " + s.name + " returning null value!");
+                            Debug.LogWarning("Error: byte array sensor " + s.GetName() + " returning null value!");
                         }
-                        SetStateAsByteArray(i, s.perceptionKey, fv6);
+                        SetStateAsByteArray(i, s.GetKey(), fv6);
                         break;
                     default:
                         break;

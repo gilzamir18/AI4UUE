@@ -14,7 +14,192 @@ namespace ai4u
         sintarray
     }
 
-    public class Sensor : MonoBehaviour, IAgentResetListener
+    public interface ISensor: IAgentResetListener
+    {
+        public void SetAgent(BasicAgent own);
+        public void OnSetup(Agent agent);
+        public float GetFloatValue();
+        public string GetStringValue();
+        public bool GetBoolValue();
+        public byte[] GetByteArrayValue();
+        public int GetIntValue();
+        public int[] GetIntArrayValue();
+        public float[] GetFloatArrayValue();
+        public SensorType GetSensorType();
+        public string GetName();
+        public string GetKey();
+        public int[] GetShape();
+        public bool IsState();
+        public bool IsResetable();
+        public bool IsActive();
+        public bool IsInput();
+        public int GetStackedObservations();
+        public void SetKey(string newkey);
+        public void SetShape(int[] newshape);
+        public void SetIsActive(bool v);
+        public void SetIsInput(bool v);
+        public void SetStackedObservations(int so);
+        public void SetSensorType(SensorType t);
+        public float GetRangeMin();
+        public float GetRangeMax();
+        public void SetRange(float min, float max);
+    }
+
+    public abstract class AbstractSensor: ISensor
+    {
+        private SensorType type;
+        private int[] shape;
+        private BasicAgent agent;
+        private string key;
+        private string name;
+        private int stackedObservations;
+        private bool isActive;
+        private bool isInput;
+        private bool isState;
+        private bool resetable;
+        private float rangeMin;
+        private float rangeMax;
+        
+        public void SetAgent(BasicAgent own)
+        {
+            this.agent = own;
+        }
+
+        public virtual void OnSetup(Agent agent)
+        {
+            this.agent = (BasicAgent) agent;
+        }
+
+        public virtual float GetFloatValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual string GetStringValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual bool GetBoolValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual byte[] GetByteArrayValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual int GetIntValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual int[] GetIntArrayValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual float[] GetFloatArrayValue() {
+            throw new System.NotSupportedException();
+        }
+
+        public virtual SensorType GetSensorType()
+        {
+            return type;
+        }
+
+        public virtual string GetName()
+        {
+            return name;
+        }
+
+        public virtual string GetKey()
+        {
+            return key;
+        }
+
+        public virtual int[] GetShape()
+        {
+            return shape;
+        }
+
+        public virtual bool IsState()
+        {
+            return isState;
+        }
+
+        public bool IsInput()
+        {
+            return isInput;
+        }
+
+        public virtual bool IsResetable()
+        {
+            return resetable;
+        }
+
+        public virtual bool IsActive()
+        {
+            return isActive;
+        }
+
+        public virtual int GetStackedObservations()
+        {
+            return stackedObservations;
+        }
+
+        public BasicAgent GetAgent()
+        {
+            return this.agent;
+        }
+
+        public virtual void OnReset(Agent agent) 
+        {
+        }
+        
+        public void SetKey(string newkey)
+        {
+            this.key = newkey;
+        }
+        
+        public void SetShape(int[] newshape) 
+        {
+            this.shape = newshape;
+        }
+
+        public void SetIsActive(bool v)
+        {
+            this.isActive = v;
+        }
+
+        public void SetIsInput(bool v)
+        {
+            this.isInput = v;
+        }
+
+        public void SetStackedObservations(int so)
+        {
+            this.stackedObservations = so;
+        }
+
+        public void SetSensorType(SensorType t)
+        {
+            this.type = t;
+        }
+
+        public float GetRangeMin()
+        {
+            return rangeMin;
+        }
+
+        public float GetRangeMax()
+        {
+            return rangeMax;
+        }
+
+        public void SetRange(float min, float max)
+        {
+            this.rangeMin = min;
+            this.rangeMax = max;
+        }
+    }
+
+    public class Sensor : MonoBehaviour, ISensor
     {
         [Tooltip("'perceptionKey' represents a unique key for an identifiable sensor component, which will be used by the controller to retrieve information from the sensor.")]
         public string perceptionKey;
@@ -27,7 +212,7 @@ namespace ai4u
         [Tooltip(" The 'isInput' property is a boolean flag that indicates whether the associated component is an agent's input or not.")]
         public bool isInput = false;
         protected SensorType Type;
-        protected bool IsState;
+        protected bool isState;
         protected int[] Shape;
         protected BasicAgent agent;
         protected bool  normalized = true;
@@ -43,21 +228,25 @@ namespace ai4u
             }
         }
 
-
-        public float RangeMin 
+        public bool IsInput()
         {
-            get
-            {
-                return rangeMin;
-            }
+            return isInput;
         }
 
-        public float RangeMax 
+        public float GetRangeMin()
         {
-            get
-            {
-                return rangeMax;
-            }
+            return rangeMin;
+        }
+
+        public float GetRangeMax()
+        {
+            return rangeMax;
+        }
+
+        public void SetRange(float min, float max)
+        {
+            this.rangeMin = min;
+            this.rangeMax = max;
         }
 
         public SensorType type
@@ -71,20 +260,6 @@ namespace ai4u
             {
                 Type = value;
             }
-        }
-
-        public bool isState
-        {
-            get
-            {
-                return IsState;
-            }
-
-            set
-            {
-                IsState = value;
-            }
-
         }
 
         public int[] shape 
@@ -135,6 +310,81 @@ namespace ai4u
 
         public virtual float[] GetFloatArrayValue() {
             return null;
+        }
+
+        public SensorType GetSensorType()
+        {
+            return type;
+        }
+
+        public string GetName()
+        {
+            return name;
+        }
+
+        public string GetKey()
+        {
+            return perceptionKey;
+        }
+
+        public int[] GetShape()
+        {
+            return shape;
+        }
+
+        public bool IsState()
+        {
+            return isState;
+        }
+
+        public bool IsResetable()
+        {
+            return resetable;
+        }
+
+        public bool IsActive()
+        {
+            return isActive;
+        }
+
+        public int GetStackedObservations()
+        {
+            return stackedObservations;
+        }
+
+        public void SetKey(string newkey)
+        {
+            this.perceptionKey = newkey;
+        }
+        
+        public void SetShape(int[] newshape) 
+        {
+            this.shape = newshape;
+        }
+
+        public void SetIsActive(bool v)
+        {
+            isActive = v;
+        }
+
+        public void SetIsInput(bool v)
+        {
+            isInput = v;
+        }
+
+        public void SetStackedObservations(int v)
+        {
+            this.stackedObservations = v;
+        }
+
+        public void SetSensorType(SensorType t)
+        {
+            this.type = t;
+        }
+
+        public BasicAgent GetAgent()
+        {
+            return this.agent;
         }
 
         public virtual void OnReset(Agent agent) {
