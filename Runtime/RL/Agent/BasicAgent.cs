@@ -145,7 +145,14 @@ namespace ai4u
             stepSensor.SetAgent(this);
             sensorList.Add(stepSensor);
             sensorsMap[stepSensor.GetKey()] = stepSensor;
-            numberOfSensors = 4;
+
+            AgentTruncatedSensor truncatedSensor = new AgentTruncatedSensor();
+            truncatedSensor.SetIsInput(false);
+            truncatedSensor.SetAgent(this);
+            sensorList.Add(truncatedSensor);
+            sensorsMap[truncatedSensor.GetKey()] = truncatedSensor;
+
+            numberOfSensors = 5;
 
             for (int i = 0; i < transform.childCount; i++) 
             {

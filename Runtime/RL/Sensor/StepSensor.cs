@@ -9,6 +9,10 @@ namespace ai4u
         public StepSensor()
         {
             SetKey("steps");
+            SetIsResetable(true);
+            SetIsActive(true);
+            SetIsInput(false);
+            SetStackedObservations(1);
             SetSensorType(SensorType.sint);
             SetShape(new int[1]{1});
         }

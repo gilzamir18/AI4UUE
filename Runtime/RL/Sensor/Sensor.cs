@@ -43,6 +43,7 @@ namespace ai4u
         public float GetRangeMin();
         public float GetRangeMax();
         public void SetRange(float min, float max);
+        public void SetIsResetable(bool v);
     }
 
     public abstract class AbstractSensor: ISensor
@@ -172,6 +173,11 @@ namespace ai4u
             this.isInput = v;
         }
 
+        public void SetIsResetable(bool v)
+        {
+            this.resetable = v;
+        }
+
         public void SetStackedObservations(int so)
         {
             this.stackedObservations = so;
@@ -247,6 +253,11 @@ namespace ai4u
         {
             this.rangeMin = min;
             this.rangeMax = max;
+        }
+
+        public void SetIsResetable(bool v)
+        {
+            this.resetable = v;
         }
 
         public SensorType type

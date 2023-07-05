@@ -11,6 +11,11 @@ namespace ai4u
         public AgentRewardSensor()
         {
             SetKey("reward");
+            SetRewardScale(1.0f);
+            SetIsResetable(true);
+            SetIsActive(true);
+            SetIsInput(false);
+            SetStackedObservations(1);
             SetSensorType(SensorType.sfloat);
             SetShape(new int[1]{1});
         }

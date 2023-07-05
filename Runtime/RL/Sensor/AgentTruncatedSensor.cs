@@ -9,6 +9,10 @@ namespace ai4u
         public AgentTruncatedSensor()
         {
             SetKey("truncated");
+            SetIsResetable(true);
+            SetIsActive(true);
+            SetIsInput(false);
+            SetStackedObservations(1);
             SetSensorType(SensorType.sbool);
             SetShape(new int[0]);
         }

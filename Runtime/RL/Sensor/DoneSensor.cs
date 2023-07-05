@@ -10,6 +10,10 @@ namespace ai4u
         public DoneSensor()
         {
             SetKey("done");
+            SetIsResetable(true);
+            SetIsActive(true);
+            SetIsInput(false);
+            SetStackedObservations(1);
             SetSensorType(SensorType.sbool);
             SetShape(new int[0]);
         }
