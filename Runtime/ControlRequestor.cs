@@ -21,6 +21,8 @@ namespace ai4u
     {
         public float defaultTimeScale = 1.0f; 
         public bool physicsMode = true;
+        public int skipFrame = 8;
+        public bool repeatAction = false;
 
         private SortedList<string, Agent> agents;
 
@@ -229,7 +231,7 @@ namespace ai4u
                 }
                 else
                 {
-                    if (ctrl.frameCounter >= agent.Brain.skipFrame)
+                    if (ctrl.frameCounter >= skipFrame)
                     {
                         ((BasicAgent)agent).UpdateReward();
                         ctrl.frameCounter = 0;
@@ -238,7 +240,7 @@ namespace ai4u
                     }
                     else
                     {
-                        if (agent.Brain.repeatAction)
+                        if (repeatAction)
                         {
                             agent.ApplyAction();
                         } 
