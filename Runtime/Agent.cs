@@ -30,8 +30,9 @@ namespace ai4u
         protected Brain brain;
         public string ID = "0";
         public ControlRequestor controlRequestor;
-        public int numberOfFields = 0;
+        public bool remote = false;
         
+        protected int numberOfFields = 0;
         protected int nSteps;
         protected string[] desc;
         protected byte[] types;
@@ -50,6 +51,11 @@ namespace ai4u
             {
                 return controlInfo;
             }
+        }
+
+        void OnDisable()
+        {
+            brain.Close();
         }
 
         public byte[] MessageType
@@ -130,7 +136,7 @@ namespace ai4u
             }
         }
 
-        public virtual void Setup()
+        public virtual void SetupAgent()
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             desc = new string[numberOfFields];
@@ -309,7 +315,7 @@ namespace ai4u
             this.brain = brain;
         }
     }
-    
+
     public interface IAgentResetListener
     {
         void OnReset(Agent agent);

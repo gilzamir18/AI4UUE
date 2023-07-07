@@ -42,6 +42,7 @@ namespace ai4u
         public void SetSensorType(SensorType t);
         public float GetRangeMin();
         public float GetRangeMax();
+        public void SetName(string name);
         public void SetRange(float min, float max);
         public void SetIsResetable(bool v);
     }
@@ -53,13 +54,13 @@ namespace ai4u
         private BasicAgent agent;
         private string key;
         private string name;
-        private int stackedObservations;
-        private bool isActive;
-        private bool isInput;
-        private bool isState;
-        private bool resetable;
-        private float rangeMin;
-        private float rangeMax;
+        private int stackedObservations = 1;
+        private bool isActive = true;
+        private bool isInput = false;
+        private bool isState = false;
+        private bool resetable = true;
+        private float rangeMin = 0;
+        private float rangeMax = 1;
         
         public void SetAgent(BasicAgent own)
         {
@@ -124,7 +125,7 @@ namespace ai4u
             return isState;
         }
 
-        public bool IsInput()
+        public virtual bool IsInput()
         {
             return isInput;
         }
@@ -153,55 +154,60 @@ namespace ai4u
         {
         }
         
-        public void SetKey(string newkey)
+        public virtual void SetKey(string newkey)
         {
             this.key = newkey;
         }
         
-        public void SetShape(int[] newshape) 
+        public virtual void SetShape(int[] newshape) 
         {
             this.shape = newshape;
         }
 
-        public void SetIsActive(bool v)
+        public virtual void SetIsActive(bool v)
         {
             this.isActive = v;
         }
 
-        public void SetIsInput(bool v)
+        public virtual void SetIsInput(bool v)
         {
             this.isInput = v;
         }
 
-        public void SetIsResetable(bool v)
+        public virtual void SetIsResetable(bool v)
         {
             this.resetable = v;
         }
 
-        public void SetStackedObservations(int so)
+        public virtual void SetStackedObservations(int so)
         {
             this.stackedObservations = so;
         }
 
-        public void SetSensorType(SensorType t)
+        public virtual void SetSensorType(SensorType t)
         {
             this.type = t;
         }
 
-        public float GetRangeMin()
+        public virtual float GetRangeMin()
         {
             return rangeMin;
         }
 
-        public float GetRangeMax()
+        public virtual float GetRangeMax()
         {
             return rangeMax;
         }
 
-        public void SetRange(float min, float max)
+        public virtual void SetRange(float min, float max)
         {
             this.rangeMin = min;
             this.rangeMax = max;
+        }
+
+        public virtual void SetName(string name)
+        {
+            this.name = name;
         }
     }
 
@@ -232,6 +238,11 @@ namespace ai4u
             {
                 return normalized;
             }
+        }
+
+        public void SetName(string name)
+        {
+            this.name = name;
         }
 
         public bool IsInput()

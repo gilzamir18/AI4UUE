@@ -44,6 +44,47 @@ namespace ai4u
         private int numberOfActuators = 0;
         private ModelMetadataLoader metadataLoader;
 
+
+        void Awake()
+        {
+            if (remote)
+            {
+
+                
+                RemoteBrain r = new RemoteBrain();
+                SetBrain(r);
+                var config = GetComponent<RemoteConfiguration>();
+                if (config != null)
+                {
+                    r.Port = config.port;
+                    r.Host = config.host;
+                    r.Managed = config.managed;
+                    r.ReceiveTimeout = config.receiveTimeout;
+                    r.ReceiveBufferSize = config.receiveBufferSize;
+                    r.SendBufferSize = config.sendBufferSize;
+                }
+
+                brain.Setup(this);
+                SetupAgent();
+            }
+            else 
+            {
+                Controller ctrl = GetComponent<Controller>();
+                
+                if (ctrl != null)
+                {
+                    SetBrain(new LocalBrain(ctrl));
+                    brain.Setup(this);
+                    SetupAgent();
+                }
+                else
+                {   
+                    Debug.LogWarning("Invalid agent configuration: Controller do not found for non-remote agent!");
+                }
+            }
+        }
+
+
         public bool Done
         {
             get
@@ -101,7 +142,7 @@ namespace ai4u
             return rewards.Remove(f);
         }
 
-        public override void Setup()
+        public override void SetupAgent()
         {
             if (body == null)
             {
@@ -264,13 +305,13 @@ namespace ai4u
             metadataLoader = new ModelMetadataLoader(this);
             string metadatastr = metadataLoader.toJson();
 
+            InitializeDataFromSensor();
             RequestCommand request = new RequestCommand(5);
             request.SetMessage(0, "__target__", ai4u.Brain.STR, "envcontrol");
             request.SetMessage(1, "max_steps", ai4u.Brain.INT, MaxStepsPerEpisode);
             request.SetMessage(2, "id", ai4u.Brain.STR, ID);
             request.SetMessage(3, "modelmetadata", ai4u.Brain.STR, metadatastr);
 			request.SetMessage(4, "config", ai4u.Brain.INT, 1);
-
             var cmds = controlRequestor.RequestEnvControl(this, request);
             if (cmds == null)
             {
@@ -463,6 +504,17 @@ namespace ai4u
                 beginOfUpdateStateEvent(this);
             }
 
+            InitializeDataFromSensor();
+
+
+            if (endOfUpdateStateEvent != null)
+            {
+                endOfUpdateStateEvent(this);
+            }
+        }
+
+        private void InitializeDataFromSensor()
+        {
             int n = sensorList.Count;
             for (int i = 0; i < n; i++) {
                 ISensor s = sensorList[i];
@@ -507,12 +559,6 @@ namespace ai4u
                     default:
                         break;
                 }
-            }
-
-
-            if (endOfUpdateStateEvent != null)
-            {
-                endOfUpdateStateEvent(this);
             }
         }
     }

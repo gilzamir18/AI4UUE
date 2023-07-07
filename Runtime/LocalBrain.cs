@@ -3,35 +3,23 @@ namespace ai4u
 {
     public class LocalBrain : Brain
     {
-        public Controller controller;
-        
-        public void Awake()
+        private Controller Controller {get;}
+
+        public LocalBrain(Controller ctrl)
         {
-            if (!isEnabled)
-            {
-                return;
-            }
-            if (agent == null)
-            {
-                agent = GetComponent<Agent>();
-            }
-            if (controller == null) {
-                Debug.LogWarning("You must specify a controller for the game object: " + gameObject.name);
-            }
-
-            if (agent == null) {
-                Debug.LogWarning("You must specify an agent for the game object: " + gameObject.name);
-            }
-
-            agent.SetBrain(this);
-            agent.Setup();
-            controller.Setup(agent);
+            this.Controller = ctrl;
+        }
+        
+        public override void Setup(Agent agent)
+        {
+            this.agent = agent;
+            this.Controller.Setup(agent);
         }
 
         public string SendMessage(string[] desc, byte[] tipo, string[] valor)
         {
-            controller.ReceiveState(desc, tipo, valor);
-            return controller.GetAction();
+            Controller.ReceiveState(desc, tipo, valor);
+            return Controller.GetAction();
         }
     }
 }

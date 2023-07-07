@@ -40,7 +40,6 @@ namespace ai4u
             agent.ControlInfo = new AgentControlInfo();
         }
 
-        // Start is called before the first frame update
         void Initialize()
         {
             this.agents = new SortedList<string, Agent>();
@@ -160,9 +159,7 @@ namespace ai4u
         {
             if (!initialized)
             {
-                throw new System.Exception("ControlRequestor could not be initialized." + 
-                                                    " Added any brain (RemoteBrain or LocalBrain)"+
-                                                    " for the agent and set this ControlRequestor to the agent!");
+                throw new System.Exception("ControlRequestor could not be initialized.");
             }
             foreach(var entry in agents)
             {
@@ -180,7 +177,6 @@ namespace ai4u
 
             if (agent != null && !ctrl.stopped && !ctrl.paused)
             {
-
                 if (agent == null)
                 {
                     Debug.LogWarning("ControlRequest requires an Agent! Use the method 'SetAgent' of the ControlRequest" 
@@ -189,7 +185,6 @@ namespace ai4u
                 if (!ctrl.applyingAction)
                 {
                     var cmd = RequestControl(agent);
-                    
                     if (CheckCmd(cmd, "__stop__"))
                     {
                         ctrl.stopped = true;
@@ -274,7 +269,6 @@ namespace ai4u
                     request.SetMessage(0, "__target__", ai4u.Brain.STR, "envcontrol");
                     request.SetMessage(1, "wait_command", ai4u.Brain.STR, "restart, resume");
                     request.SetMessage(2, "id", ai4u.Brain.STR, agent.ID);
-                
                     cmds = RequestEnvControl(agent, request);
                 }
 
@@ -282,7 +276,6 @@ namespace ai4u
                 {
                     throw new System.Exception($"ai4u2unity connection error! Agent ID: {agent.ID}.");
                 }
-
                 if (CheckCmd(cmds, "__restart__"))
                 {
                     ctrl.frameCounter = -1;

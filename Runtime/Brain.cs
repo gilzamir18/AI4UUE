@@ -15,7 +15,7 @@ namespace ai4u
     /// network protocols. A local controller can be used to adapt the use of a trained model 
     /// using a remote controller. This is a possible scenario given that there are many algorithms
     ///and frameworks that they are easier for prototyping than with a Unity language.</summary>
-    public abstract class Brain : MonoBehaviour
+    public abstract class Brain
     {
         public static byte FLOAT = 0;
         public static byte INT = 1;
@@ -23,12 +23,22 @@ namespace ai4u
         public static byte STR = 3;
         public static byte OTHER = 4;
         public static byte FLOAT_ARRAY = 5;
+        
+        protected Agent agent = null;
         protected string receivedcmd; 
         protected string[] receivedargs;
         
         private Dictionary<string, string[]> commandFields;
-        public bool isEnabled = true;
-        public Agent agent = null;
+        
+        public virtual void Setup(Agent agent)
+        {
+            
+        }
+
+        public virtual void Close()
+        {
+            
+        }
 
         public void SetCommandFields(Dictionary<string, string[]>  cmdField)
         {

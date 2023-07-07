@@ -10,6 +10,10 @@ namespace ai4u
         public IDSensor()
         {
             SetKey("id");
+            SetIsResetable(true);
+            SetIsActive(true);
+            SetIsInput(false);
+            SetStackedObservations(1);
             SetSensorType(SensorType.sstring);
             SetShape(new int[1]{1});
          
