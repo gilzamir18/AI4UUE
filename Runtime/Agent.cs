@@ -300,7 +300,7 @@ namespace ai4u
         {
         }
 
-        public virtual void Reset()
+        public virtual void AgentReset()
         {
             nSteps = 0;
         }

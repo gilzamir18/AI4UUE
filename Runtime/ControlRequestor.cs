@@ -191,7 +191,7 @@ namespace ai4u
                         ctrl.applyingAction = false;
                         ctrl.frameCounter = 0;
                         agent.NSteps = 0;
-                        agent.Reset();
+                        agent.AgentReset();
                     }
                     else if (CheckCmd(cmd, "__restart__"))
                     {
@@ -200,7 +200,7 @@ namespace ai4u
                         ctrl.applyingAction = false;
                         ctrl.paused = false;
                         ctrl.stopped = false;
-                        agent.Reset();
+                        agent.AgentReset();
                     }
                     else if (CheckCmd(cmd, "__pause__"))
                     {
@@ -289,7 +289,7 @@ namespace ai4u
                     ctrl.paused = false;
                     ctrl.stopped = false;
                     ctrl.applyingAction = false;
-                    agent.Reset();
+                    agent.AgentReset();
                 } else if (ctrl.paused && CheckCmd(cmds, "__resume__"))
                 {
                     ctrl.paused = false;

@@ -12,8 +12,8 @@ namespace ai4u {
         public float turnAmount = 1;
         public float jumpPower = 1;
         public float jumpForwardPower = 1;
-        public bool showAgentDirection = true;
-        public float shiftDirection = 2; 
+        public bool showAgentArrow = true;
+        public Vector3 arrowOffset = new Vector3(0, 0, 0); 
 
         public bool freezeXPos = false;
         public bool freezeYPos = false;
@@ -27,7 +27,7 @@ namespace ai4u {
 
         void Awake()
         {
-            if (showAgentDirection)
+            if (showAgentArrow)
             {
                 GenerateArrow();
             }
@@ -196,7 +196,7 @@ namespace ai4u {
             arrow.transform.SetParent(transform);
             arrow.transform.position = transform.position;
             arrow.transform.rotation = transform.rotation;
-            arrow.transform.position += new Vector3(0, 0, shiftDirection);
+            arrow.transform.position +=  arrowOffset;
         }
 
         public override void OnReset(Agent agent)

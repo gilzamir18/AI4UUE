@@ -430,7 +430,7 @@ namespace ai4u
             return !Done;
         }
 
-        public override void Reset() 
+        public override void AgentReset() 
         {
             if (beforeTheResetEvent != null)
             {
