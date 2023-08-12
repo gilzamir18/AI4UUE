@@ -69,8 +69,8 @@ namespace ai4u
             int p = 0;
             foreach (RemoteBrain rb in brainList)
             {
-                rb.Host = host;
-                rb.Port = startPort + p;
+                rb.host = host;
+                rb.port = startPort + p;
                 p += step;
             }
         }

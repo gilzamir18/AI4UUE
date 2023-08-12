@@ -30,9 +30,8 @@ namespace ai4u
         protected Brain brain;
         public string ID = "0";
         public ControlRequestor controlRequestor;
-        public bool remote = false;
+        public int numberOfFields = 0;
         
-        protected int numberOfFields = 0;
         protected int nSteps;
         protected string[] desc;
         protected byte[] types;
@@ -51,11 +50,6 @@ namespace ai4u
             {
                 return controlInfo;
             }
-        }
-
-        void OnDisable()
-        {
-            brain.Close();
         }
 
         public byte[] MessageType
@@ -136,7 +130,7 @@ namespace ai4u
             }
         }
 
-        public virtual void SetupAgent()
+        public virtual void Setup()
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             desc = new string[numberOfFields];
@@ -300,7 +294,7 @@ namespace ai4u
         {
         }
 
-        public virtual void AgentReset()
+        public virtual void Reset()
         {
             nSteps = 0;
         }
@@ -313,6 +307,82 @@ namespace ai4u
         public void SetBrain(Brain brain)
         {
             this.brain = brain;
+        }
+    }
+
+    ///<summary>The Brain class communicates with the character's controller, that is, with the remote or 
+    ///local mechanism it takes, selects the next action given the current state. This class does not fix
+    /// any particular decision-making approach, but rather encapsulates a decision-making protocol that 
+    ///allows the agent to be controlled remotely (code in programming languages ​​other than those supported by Unity)
+    ///or locally (scripts that use languages ​​supported by Unity. Python is the naturally supported remote 
+    ///scripting language. But others may be supported in the future. AI4U provides two instances of Brain. 
+    ///One is a remote controller called RemoteBrain, which allows a remote controller to send 
+    ///commands to an avatar. a local controller, which allows commands to be sent without using 
+    /// network protocols. A local controller can be used to adapt the use of a trained model 
+    /// using a remote controller. This is a possible scenario given that there are many algorithms
+    ///and frameworks that they are easier for prototyping than with a Unity language.</summary>
+    public abstract class Brain : MonoBehaviour
+    {
+        public static byte FLOAT = 0;
+        public static byte INT = 1;
+        public static byte BOOL = 2;
+        public static byte STR = 3;
+        public static byte OTHER = 4;
+        public static byte FLOAT_ARRAY = 5;
+        protected string receivedcmd; 
+        protected string[] receivedargs;
+        
+        private Dictionary<string, string[]> commandFields;
+        public bool isEnabled = true;
+        public Agent agent = null;
+        public int skipFrame = 0;
+        public bool repeatAction = false;
+
+
+        public void SetCommandFields(Dictionary<string, string[]>  cmdField)
+        {
+            this.commandFields = cmdField;
+        } 
+
+        public string[] GetField(string name)
+        {
+            return this.commandFields[name];
+        }
+
+        public void SetReceivedCommandName(string cmdname)
+        {
+            receivedcmd = cmdname;
+        }
+
+        public bool containsCommandField(string cmd)
+        {
+            if (commandFields != null)
+            {
+                return commandFields.ContainsKey(cmd);
+            }
+            return false;
+        }
+
+        public void SetReceivedCommandArgs(string[] args)
+        {
+            receivedargs = args;    
+        }
+
+        public string GetReceivedCommand()
+        {
+            return receivedcmd;
+        }
+
+        public string[] GetReceivedArgs(string cmd=null)
+        {
+            if (cmd == null)
+            {
+                return receivedargs;
+            }
+            else
+            {
+                return commandFields[cmd];
+            }
         }
     }
 

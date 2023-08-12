@@ -4,22 +4,23 @@ using UnityEngine;
 
 namespace ai4u 
 {
-    public class StepSensor : AbstractSensor
+    public class StepSensor : Sensor
     {
         public StepSensor()
         {
-            SetKey("steps");
-            SetIsResetable(true);
-            SetIsActive(true);
-            SetIsInput(false);
-            SetStackedObservations(1);
-            SetSensorType(SensorType.sint);
-            SetShape(new int[1]{1});
+            Start();
+        }
+
+        void Start()
+        {
+            perceptionKey = "steps";
+            type = SensorType.sint;
+            shape = new int[1]{1};
         }
 
         public override int GetIntValue()
         {
-            return GetAgent().NSteps;    
+            return agent.NSteps;    
         }
     }
 }

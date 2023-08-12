@@ -17,44 +17,53 @@ namespace ai4u
         ///managed manually. Thus, in this case, command 
         ///line arguments do not alter the properties of 
         ///the remote brain.</summary>
-        public bool Managed {get; set;} = false;
+        public bool managed = false;
         ///<summary>The IP of the ai4u2unity training server.</summary>
-        public string Host {get; set;} = "127.0.0.1";
+        public string host = "127.0.0.1";
         ///<summary>The server port of the ai4u2unity training server.</summary>
-        public int Port {get; set;} = 8080;
-        public int ReceiveTimeout {get; set;} = 2000;
-        public int ReceiveBufferSize {get; set;} = 10*8192;
-        public int SendBufferSize {get; set;} = 10*8192;
+        public int port = 8080;
+        public int receiveTimeout = 2000;
+        public int receiveBufferSize = 8192;
+        public int sendBufferSize = 8192;
+
 
         private string cmdname; //It's more recently received command/action name.
         private string[] args; //It's more recently command/action arguments.
+        private float timeScale = 1.0f; //unity controll of the physical time.
         private bool runFirstTime = false;
+
+
 
         private IPAddress serverAddr; //controller address
         private EndPoint endPoint; //controller endpoint
         private Socket sockToSend; //Socket to send async message.
 
-        public override void Setup(Agent agent){
-            this.agent = agent;
+        private ControlRequestor controlRequestor;
+
+        void Awake(){
+            if (!isEnabled)
+            {
+                return;
+            }
             //one time configuration
             sockToSend = TrySocket();
-            if (!Managed && runFirstTime){
+            if (!managed && runFirstTime){
                 runFirstTime =false;
                 string[] args = System.Environment.GetCommandLineArgs ();
                 int i = 0;
                 while (i < args.Length){
                     switch (args[i]) {
                         case "--ai4u_port":
-                            Port = int.Parse(args[i+1]);
+                            port = int.Parse(args[i+1]);
                             i += 2;
                             break;
                         case "--ai4u_timescale":
-                            agent.ControlRequestor.defaultTimeScale = float.Parse(args[i+1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                            Time.timeScale = agent.ControlRequestor.defaultTimeScale;
+                            this.timeScale = float.Parse(args[i+1], System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
+                            Time.timeScale = this.timeScale;
                             i += 2;
                             break;
                         case "--ai4u_host":
-                            Host = args[i+1];
+                            host = args[i+1];
                             i += 2;
                             break;
                         case "--ai4u_targetframerate":
@@ -71,21 +80,41 @@ namespace ai4u
                     }
                 }
             }
+            if (agent == null) {
+                Debug.LogWarning("You have not defined the agent that the remote brain must control. Game Object: " + gameObject.name);
+            }
+            agent.SetBrain(this);
+            agent.Setup();
+            controlRequestor = agent.ControlRequestor; 
+            if (controlRequestor == null)
+            {
+
+                Debug.LogWarning("No ControlRequestor component added in RemoteBrain component.");
+            }
         }
+
+        public ControlRequestor ControlRequestor
+        {
+            get
+            {
+                return controlRequestor;
+            }
+        }
+
 
 
         public Socket TrySocket()
         {
             if (sockToSend == null)
             {
-                    serverAddr = IPAddress.Parse(Host);
-                    endPoint = new IPEndPoint(serverAddr, Port);
+                    serverAddr = IPAddress.Parse(host);
+                    endPoint = new IPEndPoint(serverAddr, port);
                     sockToSend = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             }
             return sockToSend;
         }
 
-        public override void Close()
+        void OnDisable()
         {
             if (sockToSend != null)
             {
@@ -96,22 +125,15 @@ namespace ai4u
 
         public bool sendData(byte[] data, out int total, byte[] received)
         {
-            TrySocket().ReceiveTimeout = ReceiveTimeout;
-            TrySocket().ReceiveBufferSize = ReceiveBufferSize;
-            TrySocket().SendBufferSize = SendBufferSize;
+            TrySocket().ReceiveTimeout = receiveTimeout;
+            TrySocket().ReceiveBufferSize = receiveBufferSize;
+            TrySocket().SendBufferSize = sendBufferSize;
+
+            sockToSend.SendTo(data, endPoint);
             total = 0;
             try 
             { 
-                sockToSend.SendTo(data, endPoint);
                 total = sockToSend.Receive(received);
-                if (total == 0)
-                {
-                    Debug.LogWarning($"Script ai4u2unity is not connected in agent with ID equals to {agent.ID}!");
-                    Debug.LogWarning(@"
-                    Add a RemoteConfiguration component to this agent and change the appropriate 
-                    network settings for communication with the agent’s controller.
-                    ");
-                }
                 return true;
             }
             catch(System.Exception e)

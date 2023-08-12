@@ -21,8 +21,6 @@ namespace ai4u
     {
         public float defaultTimeScale = 1.0f; 
         public bool physicsMode = true;
-        public int skipFrame = 8;
-        public bool repeatAction = false;
 
         private SortedList<string, Agent> agents;
 
@@ -40,6 +38,7 @@ namespace ai4u
             agent.ControlInfo = new AgentControlInfo();
         }
 
+        // Start is called before the first frame update
         void Initialize()
         {
             this.agents = new SortedList<string, Agent>();
@@ -159,7 +158,9 @@ namespace ai4u
         {
             if (!initialized)
             {
-                throw new System.Exception("ControlRequestor could not be initialized.");
+                throw new System.Exception("ControlRequestor could not be initialized." + 
+                                                    " Added any brain (RemoteBrain or LocalBrain)"+
+                                                    " for the agent and set this ControlRequestor to the agent!");
             }
             foreach(var entry in agents)
             {
@@ -177,6 +178,7 @@ namespace ai4u
 
             if (agent != null && !ctrl.stopped && !ctrl.paused)
             {
+
                 if (agent == null)
                 {
                     Debug.LogWarning("ControlRequest requires an Agent! Use the method 'SetAgent' of the ControlRequest" 
@@ -185,13 +187,14 @@ namespace ai4u
                 if (!ctrl.applyingAction)
                 {
                     var cmd = RequestControl(agent);
+                    
                     if (CheckCmd(cmd, "__stop__"))
                     {
                         ctrl.stopped = true;
                         ctrl.applyingAction = false;
                         ctrl.frameCounter = 0;
                         agent.NSteps = 0;
-                        agent.AgentReset();
+                        agent.Reset();
                     }
                     else if (CheckCmd(cmd, "__restart__"))
                     {
@@ -200,7 +203,7 @@ namespace ai4u
                         ctrl.applyingAction = false;
                         ctrl.paused = false;
                         ctrl.stopped = false;
-                        agent.AgentReset();
+                        agent.Reset();
                     }
                     else if (CheckCmd(cmd, "__pause__"))
                     {
@@ -226,7 +229,7 @@ namespace ai4u
                 }
                 else
                 {
-                    if (ctrl.frameCounter >= skipFrame)
+                    if (ctrl.frameCounter >= agent.Brain.skipFrame)
                     {
                         ((BasicAgent)agent).UpdateReward();
                         ctrl.frameCounter = 0;
@@ -235,7 +238,7 @@ namespace ai4u
                     }
                     else
                     {
-                        if (repeatAction)
+                        if (agent.Brain.repeatAction)
                         {
                             agent.ApplyAction();
                         } 
@@ -269,6 +272,7 @@ namespace ai4u
                     request.SetMessage(0, "__target__", ai4u.Brain.STR, "envcontrol");
                     request.SetMessage(1, "wait_command", ai4u.Brain.STR, "restart, resume");
                     request.SetMessage(2, "id", ai4u.Brain.STR, agent.ID);
+                
                     cmds = RequestEnvControl(agent, request);
                 }
 
@@ -276,6 +280,7 @@ namespace ai4u
                 {
                     throw new System.Exception($"ai4u2unity connection error! Agent ID: {agent.ID}.");
                 }
+
                 if (CheckCmd(cmds, "__restart__"))
                 {
                     ctrl.frameCounter = -1;
@@ -289,7 +294,7 @@ namespace ai4u
                     ctrl.paused = false;
                     ctrl.stopped = false;
                     ctrl.applyingAction = false;
-                    agent.AgentReset();
+                    agent.Reset();
                 } else if (ctrl.paused && CheckCmd(cmds, "__resume__"))
                 {
                     ctrl.paused = false;

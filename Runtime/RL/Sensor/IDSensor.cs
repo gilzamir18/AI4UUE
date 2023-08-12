@@ -4,29 +4,19 @@ using UnityEngine;
 
 namespace ai4u 
 {
-    public class IDSensor : AbstractSensor
+    public class IDSensor : Sensor
     {
-
-        public IDSensor()
-        {
-            SetKey("id");
-            SetIsResetable(true);
-            SetIsActive(true);
-            SetIsInput(false);
-            SetStackedObservations(1);
-            SetSensorType(SensorType.sstring);
-            SetShape(new int[1]{1});
-         
-        }
-
         public override void OnSetup(Agent agent)
         {
-            SetAgent((BasicAgent)agent);
+            perceptionKey = "id";
+            type = SensorType.sstring;
+            shape = new int[1]{1};
+            this.agent = (BasicAgent) agent;
         }
 
         public override string GetStringValue()
         {
-            return GetAgent().ID;
+            return agent.ID;
         }
     }
 }

@@ -5,27 +5,18 @@ using ai4u;
 
 namespace ai4u
 {
-    public class DoneSensor : AbstractSensor
+    public class DoneSensor : Sensor
     {
-        public DoneSensor()
-        {
-            SetKey("done");
-            SetIsResetable(true);
-            SetIsActive(true);
-            SetIsInput(false);
-            SetStackedObservations(1);
-            SetSensorType(SensorType.sbool);
-            SetShape(new int[0]);
-        }
-
         public override void OnSetup(Agent agent)
         {
-            SetAgent((BasicAgent) agent);
+            perceptionKey = "done";
+            type = SensorType.sbool;
+            shape = new int[0];
         }
 
         public override bool GetBoolValue()
         {
-            return GetAgent().Done;    
+            return agent.Done;    
         }
     }
 }

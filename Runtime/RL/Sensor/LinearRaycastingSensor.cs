@@ -24,11 +24,8 @@ namespace ai4u
         public int numberOfRays = 5;
         [Tooltip("A boolean value that indicates whether or not the sensor should automatically map detected objects to integer codes based on their tags.")]
         public bool automaticTagMapping = false;
-        [Tooltip("The list of tags relevant to the agent’s decision.")]
-        public List<string> tags;
         [Tooltip("An integer value that is used to calculate the integer code for objects detected by the sensor when automaticTagMapping is enabled.")]
-        public int tagCodeGap = 10;
-        public int tagCodeShift = 0;
+        public int tagCodeDistance = 10;
         [Tooltip("An array of ObjectMapping structs that define mappings between object tags and integer codes.")]
         public  ObjectMapping[] objectMapping;
         [Tooltip(" A boolean value that indicates whether or not debug information should be displayed while the sensor is active.")]
@@ -55,12 +52,13 @@ namespace ai4u
 
             if (automaticTagMapping)
             {
-                int i = 0;
-                foreach (string tag in tags)
+                #if UNITY_EDITOR
+                for (int i = 0; i < UnityEditorInternal.InternalEditorUtility.tags.Length; i++)
                 {
-                        mapping[tag] = tagCodeShift + i * tagCodeGap;
-                        i++;
+                        string tag = UnityEditorInternal.InternalEditorUtility.tags[i];
+                        mapping[tag] = i * tagCodeDistance;
                 }
+                #endif
             }
             else
             {

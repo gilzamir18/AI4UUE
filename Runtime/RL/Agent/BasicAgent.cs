@@ -7,7 +7,11 @@ namespace ai4u
 {
     
     /// <summary>DPRLAgent - Dimentional Physical Reinforcement Learning Agent
-    /// This class models an agent with physical rigidbody control in a tridimentional world. </summary>
+    /// This class models an agent with physical rigidbody control in a tridimentional world. </summary> 
+    [RequireComponent(typeof(DoneSensor))]
+    [RequireComponent(typeof(RewardSensor))]
+    [RequireComponent(typeof(StepSensor))]
+    [RequireComponent(typeof(IDSensor))]
     public class BasicAgent : Agent
     {
         public delegate void AgentEpisodeHandler(BasicAgent agent);
@@ -27,63 +31,20 @@ namespace ai4u
         public bool doneAtPositiveReward = false;
         ///<summary>The maximum number of steps per episode.</summary>
         public int MaxStepsPerEpisode = 0;
-        public float rewardScale = 1.0f;
         public List<RewardFunc> rewards;
         public GameObject body;
         
         //Agent's ridid body
         private bool done;
-        private bool truncated;
         protected float reward;
         private Dictionary<string, bool> firstTouch;
-        private Dictionary<string, ISensor> sensorsMap;
+        private Dictionary<string, Sensor> sensorsMap;
         private List<Actuator> actuatorList;
-        private List<ISensor> sensorList;
+        private List<Sensor> sensorList;
 
         private int numberOfSensors = 0;
         private int numberOfActuators = 0;
         private ModelMetadataLoader metadataLoader;
-
-
-        void Awake()
-        {
-            if (remote)
-            {
-
-                
-                RemoteBrain r = new RemoteBrain();
-                SetBrain(r);
-                var config = GetComponent<RemoteConfiguration>();
-                if (config != null)
-                {
-                    r.Port = config.port;
-                    r.Host = config.host;
-                    r.Managed = config.managed;
-                    r.ReceiveTimeout = config.receiveTimeout;
-                    r.ReceiveBufferSize = config.receiveBufferSize;
-                    r.SendBufferSize = config.sendBufferSize;
-                }
-
-                brain.Setup(this);
-                SetupAgent();
-            }
-            else 
-            {
-                Controller ctrl = GetComponent<Controller>();
-                
-                if (ctrl != null)
-                {
-                    SetBrain(new LocalBrain(ctrl));
-                    brain.Setup(this);
-                    SetupAgent();
-                }
-                else
-                {   
-                    Debug.LogWarning("Invalid agent configuration: Controller do not found for non-remote agent!");
-                }
-            }
-        }
-
 
         public bool Done
         {
@@ -103,14 +64,6 @@ namespace ai4u
             }
         }
 
-        public bool Truncated
-        {
-            get
-            {
-                return truncated;
-            }
-        }
-
         public override void EndOfEpisode()
         {
             if (endOfEpisodeEvent != null)
@@ -119,7 +72,7 @@ namespace ai4u
             }
         }
 
-        public bool TryGetSensor(string key, out ISensor s)
+        public bool TryGetSensor(string key, out Sensor s)
         {
             return sensorsMap.TryGetValue(key, out s);
         }
@@ -142,7 +95,7 @@ namespace ai4u
             return rewards.Remove(f);
         }
 
-        public override void SetupAgent()
+        public override void Setup()
         {
             if (body == null)
             {
@@ -156,44 +109,36 @@ namespace ai4u
             System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
             actuatorList = new List<Actuator>();
-            sensorList = new List<ISensor>();
-            sensorsMap = new Dictionary<string, ISensor>();
+            sensorList = new List<Sensor>();
+            sensorsMap = new Dictionary<string, Sensor>();
             if (rewards == null)
             {
                 rewards = new List<RewardFunc>();
             }
-            DoneSensor doneSensor = new DoneSensor();
-            doneSensor.SetIsInput(false);
+            DoneSensor doneSensor = GetComponent<DoneSensor>();
+            doneSensor.isInput = false;
             doneSensor.SetAgent(this);
             sensorList.Add(doneSensor);
-            sensorsMap[doneSensor.GetKey()] = doneSensor;
+            sensorsMap[doneSensor.perceptionKey] = doneSensor;
 
-            AgentRewardSensor rewardSensor = new AgentRewardSensor();
-            rewardSensor.SetRewardScale(rewardScale);
-            rewardSensor.SetIsInput(false);
+            RewardSensor rewardSensor = GetComponent<RewardSensor>();
+            rewardSensor.isInput = false;
             rewardSensor.SetAgent(this);
             sensorList.Add(rewardSensor);
-            sensorsMap[rewardSensor.GetKey()] = rewardSensor;
+            sensorsMap[rewardSensor.perceptionKey] = rewardSensor;
 
-            IDSensor idSensor = new IDSensor();
-            idSensor.SetIsInput(false);
+            IDSensor idSensor = GetComponent<IDSensor>();
+            idSensor.isInput = false;
             idSensor.SetAgent(this);
             sensorList.Add(idSensor);
-            sensorsMap[idSensor.GetKey()] = idSensor;
+            sensorsMap[idSensor.perceptionKey] = idSensor;
 
-            StepSensor stepSensor = new StepSensor();
-            stepSensor.SetIsInput(false);
+            StepSensor stepSensor = GetComponent<StepSensor>();
+            stepSensor.isInput = false;
             stepSensor.SetAgent(this);
             sensorList.Add(stepSensor);
-            sensorsMap[stepSensor.GetKey()] = stepSensor;
-
-            AgentTruncatedSensor truncatedSensor = new AgentTruncatedSensor();
-            truncatedSensor.SetIsInput(false);
-            truncatedSensor.SetAgent(this);
-            sensorList.Add(truncatedSensor);
-            sensorsMap[truncatedSensor.GetKey()] = truncatedSensor;
-
-            numberOfSensors = 5;
+            sensorsMap[stepSensor.perceptionKey] = stepSensor;
+            numberOfSensors = 4;
 
             for (int i = 0; i < transform.childCount; i++) 
             {
@@ -288,9 +233,9 @@ namespace ai4u
                 r.OnSetup(this);
             }
 
-            foreach (ISensor sensor in sensorList)
+            foreach (Sensor sensor in sensorList)
             {
-                if (sensor.IsResetable())
+                if (sensor.resetable)
                 {
                     AddResetListener(sensor);
                 }
@@ -305,13 +250,13 @@ namespace ai4u
             metadataLoader = new ModelMetadataLoader(this);
             string metadatastr = metadataLoader.toJson();
 
-            InitializeDataFromSensor();
             RequestCommand request = new RequestCommand(5);
             request.SetMessage(0, "__target__", ai4u.Brain.STR, "envcontrol");
             request.SetMessage(1, "max_steps", ai4u.Brain.INT, MaxStepsPerEpisode);
             request.SetMessage(2, "id", ai4u.Brain.STR, ID);
             request.SetMessage(3, "modelmetadata", ai4u.Brain.STR, metadatastr);
 			request.SetMessage(4, "config", ai4u.Brain.INT, 1);
+
             var cmds = controlRequestor.RequestEnvControl(this, request);
             if (cmds == null)
             {
@@ -329,7 +274,7 @@ namespace ai4u
             }
         }
 
-        public List<ISensor> Sensors 
+        public List<Sensor> Sensors 
         {
             get
             {
@@ -382,7 +327,6 @@ namespace ai4u
             }
 
             if (MaxStepsPerEpisode > 0 && nSteps >= MaxStepsPerEpisode) {
-                truncated = true;
                 Done = true;
             }
             int n = actuatorList.Count;
@@ -430,7 +374,7 @@ namespace ai4u
             return !Done;
         }
 
-        public override void AgentReset() 
+        public override void Reset() 
         {
             if (beforeTheResetEvent != null)
             {
@@ -465,7 +409,6 @@ namespace ai4u
         {
             nSteps = 0;
             reward = 0;
-            truncated = false;
             Done = false;
             firstTouch = new Dictionary<string, bool>(); 
             
@@ -504,61 +447,56 @@ namespace ai4u
                 beginOfUpdateStateEvent(this);
             }
 
-            InitializeDataFromSensor();
-
-
-            if (endOfUpdateStateEvent != null)
-            {
-                endOfUpdateStateEvent(this);
-            }
-        }
-
-        private void InitializeDataFromSensor()
-        {
             int n = sensorList.Count;
             for (int i = 0; i < n; i++) {
-                ISensor s = sensorList[i];
-                switch(s.GetSensorType())
+                Sensor s = sensorList[i];
+                switch(s.type)
                 {
                     case SensorType.sfloatarray:
                         var fv = s.GetFloatArrayValue();
                         if (fv == null)
                         {
-                            Debug.LogWarning("Error: array of float sensor " + s.GetName() + " returning null value!");
+                            Debug.LogWarning("Error: array of float sensor " + s.name + " returning null value!");
                         }
-                        SetStateAsFloatArray(i, s.GetKey(), fv);
+                        SetStateAsFloatArray(i, s.perceptionKey, fv);
                         break;
                     case SensorType.sfloat:
                         var fv2 = s.GetFloatValue();
-                        SetStateAsFloat(i, s.GetKey(), fv2);
+                        SetStateAsFloat(i, s.perceptionKey, fv2);
                         break;
                     case SensorType.sint:
                         var fv3 = s.GetIntValue();
-                        SetStateAsInt(i, s.GetKey(), fv3);
+                        SetStateAsInt(i, s.perceptionKey, fv3);
                         break;
                     case SensorType.sstring:
                         var fv4 = s.GetStringValue();
                         if (fv4 == null)
                         {
-                            Debug.LogWarning("Error: string sensor " + s.GetName() + " returning null value!");
+                            Debug.LogWarning("Error: string sensor " + s.name + " returning null value!");
                         }
-                        SetStateAsString(i, s.GetKey(), fv4);
+                        SetStateAsString(i, s.perceptionKey, fv4);
                         break;
                     case SensorType.sbool:
                         var fv5 = s.GetBoolValue();
-                        SetStateAsBool(i, s.GetKey(), fv5);
+                        SetStateAsBool(i, s.perceptionKey, fv5);
                         break;
                     case SensorType.sbytearray:
                         var fv6 = s.GetByteArrayValue();
                         if (fv6 == null)
                         {
-                            Debug.LogWarning("Error: byte array sensor " + s.GetName() + " returning null value!");
+                            Debug.LogWarning("Error: byte array sensor " + s.name + " returning null value!");
                         }
-                        SetStateAsByteArray(i, s.GetKey(), fv6);
+                        SetStateAsByteArray(i, s.perceptionKey, fv6);
                         break;
                     default:
                         break;
                 }
+            }
+
+
+            if (endOfUpdateStateEvent != null)
+            {
+                endOfUpdateStateEvent(this);
             }
         }
     }

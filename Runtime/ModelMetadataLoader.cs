@@ -16,14 +16,11 @@ namespace ai4u
             List<ModelInput> inputs = new List<ModelInput>();
             List<ModelOutput> outputs = new List<ModelOutput>();
 
-            foreach(ISensor s in agent.Sensors)
+            foreach(Sensor s in agent.Sensors)
             {
-                if (s.IsInput())
+                if (s.isInput)
                 {
-                    inputs.Add(new ModelInput(s.GetKey(), 
-                                s.GetSensorType(), s.GetShape(), 
-                                s.GetStackedObservations(),
-                                s.GetRangeMin(), s.GetRangeMax()));
+                    inputs.Add(new ModelInput(s.perceptionKey, s.type, s.shape, s.stackedObservations, s.RangeMin, s.RangeMax));
                 }
             }
 
