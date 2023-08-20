@@ -1,6 +1,6 @@
 
 # AI4U for Unity
-### **Unfortunately, AI4U has been discontinued and is in maintenance mode. For a modern agent-oriented game modeling framework with support for reinforcement learning and natural language processing, see the BeMaker project (https://github.com/gilzamir18/Bemaker).**
+### **Unfortunately, AI4U has been discontinued and is in maintenance mode. For a modern agent-oriented game modeling framework with support for reinforcement learning and natural language processing, see the BeMaker project (https://github.com/gilzamir18/ai4u).**
 This is the Unity version of the AI4U Agent Abstraction Framework (AI4UAAF). AI4UAAF provides a alternative approach to modeling Non-Player Characters (NPC).
 
 Agent abstraction defines an agent living in a environment and interacting with this environment by means of sensors and actuators. So, NPC specification is a kind of agent specification. Agent's components are: sensors, actuators, events, reward functions and brain. Sensors and actuators are the interface between agents and environments. A sensor provides data to an agent's brain, while actuators send actions from agent to environment. A brain is a script that proccessing sensors' data e made a decision (selects an action by time).
