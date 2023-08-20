@@ -85,11 +85,14 @@ namespace ai4u
             {
                 Dictionary<string, string[]> fields = new Dictionary<string, string[]>();
                 Command[] cmds = UpdateActionData(cmdstr);
-                foreach(Command cmd in cmds)
+                if (cmds.Length > 0)
                 {
-                    agent.Brain.SetReceivedCommandName(cmd.name);
-                    agent.Brain.SetReceivedCommandArgs(cmd.args);
-                    fields[cmd.name] = cmd.args; 
+                    agent.Brain.SetReceivedCommandName(cmds[0].name);
+                    agent.Brain.SetReceivedCommandArgs(cmds[0].args);                    
+                }
+                for (int i = 1; i < cmds.Length; i++)
+                {
+                    fields[cmds[i].name] = cmds[i].args; 
                 }
                 agent.Brain.SetCommandFields(fields);
                 return cmds;
